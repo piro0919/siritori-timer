@@ -1,5 +1,5 @@
 import React, { StrictMode } from "react";
-import ReactDOM from "react-dom";
+import { hydrate, render } from "react-dom";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
 import "ress";
@@ -7,15 +7,26 @@ import Containers from "containers";
 import "./styles/global.scss";
 import { BrowserRouter as Router } from "react-router-dom";
 import "rc-slider/assets/index.css";
+import ReactPWAInstallProvider from "react-pwa-install";
 
-ReactDOM.render(
+const rootElement = document.getElementById("root");
+const element = (
   <StrictMode>
-    <Router>
-      <Containers />
-    </Router>
-  </StrictMode>,
-  document.getElementById("root")
+    <ReactPWAInstallProvider
+      enableLogging={process.env.NODE_ENV === "development"}
+    >
+      <Router>
+        <Containers />
+      </Router>
+    </ReactPWAInstallProvider>
+  </StrictMode>
 );
+
+if (rootElement && rootElement.hasChildNodes()) {
+  hydrate(element, rootElement);
+} else {
+  render(element, rootElement);
+}
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

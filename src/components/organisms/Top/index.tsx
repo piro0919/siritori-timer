@@ -1,4 +1,3 @@
-import RuleSelect from "components/molecules/RuleSelect";
 import React, { FC, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import Footer from "../Footer";
@@ -7,6 +6,7 @@ import styles from "./style.module.scss";
 import { motion } from "framer-motion";
 import Rule, { RuleProps } from "../Rule";
 import Game from "../Game";
+import TopSelect from "../TopSelect";
 
 export type TopProps = Pick<RuleProps, "control" | "handleSubmit">;
 
@@ -35,7 +35,7 @@ const Top: FC<TopProps> = ({ control, handleSubmit }) => {
               initial={false}
             >
               <div className={styles.item}>
-                {pathname === "/" ? <RuleSelect /> : null}
+                {pathname === "/" ? <TopSelect /> : null}
               </div>
               <div className={styles.item}>
                 {pathname === "/expert" || pathname === "/party" ? (
