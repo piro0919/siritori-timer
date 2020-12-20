@@ -1,0 +1,16 @@
+.button {
+  border: 8px solid #fff;
+  border-radius: 8px;
+  font-size: 8.4rem;
+  font-weight: 900;
+  height: 100%;
+  padding: 48px 0;
+  transition: 160ms;
+  width: 100%;
+}
+
+.button:disabled {
+  font-size: 4rem;
+  opacity: 0.5;
+  padding: 0;
+}
