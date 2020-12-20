@@ -20,7 +20,7 @@ const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
 
   return (
     <section className={styles.wrapper}>
-      <h2>
+      <h2 className={styles.heading2}>
         {pathname === "/expert" ? "エキスパートルール" : "パーティルール"}
       </h2>
       <form onSubmit={handleSubmit}>
