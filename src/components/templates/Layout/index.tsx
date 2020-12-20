@@ -1,21 +1,24 @@
 import React, { ComponentPropsWithoutRef, FC, useMemo } from "react";
 import styles from "./style.module.scss";
-import useWindowSize from "@rooks/use-window-size";
+import { useWindowHeight } from "@react-hook/window-size";
+import NoSSR from "react-no-ssr";
 
 const Layout: FC = ({ children }) => {
-  const { innerHeight } = useWindowSize();
+  const onlyHeight = useWindowHeight();
   const style = useMemo<ComponentPropsWithoutRef<"div">["style"]>(
     () => ({
-      minHeight: innerHeight || window.innerHeight,
+      minHeight: onlyHeight,
     }),
-    [innerHeight]
+    [onlyHeight]
   );
 
   return (
-    <div className={styles.wrapper} style={style}>
-      <div className={styles.background} />
-      <div className={styles.inner}>{children}</div>
-    </div>
+    <NoSSR>
+      <div className={styles.wrapper} style={style}>
+        <div className={styles.background} />
+        <div className={styles.inner}>{children}</div>
+      </div>
+    </NoSSR>
   );
 };
 

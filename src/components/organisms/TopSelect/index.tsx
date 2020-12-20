@@ -4,7 +4,7 @@ import { useReactPWAInstall } from "react-pwa-install";
 import styles from "./style.module.scss";
 
 const TopSelect: FC = () => {
-  const { pwaInstall, supported, isInstalled } = useReactPWAInstall();
+  const { isInstalled, pwaInstall, supported } = useReactPWAInstall();
   const handleClick = useCallback(() => {
     pwaInstall({
       title: "限界しりとりタイマー インストール",
@@ -18,11 +18,13 @@ const TopSelect: FC = () => {
   return (
     <div className={styles.wrapper}>
       <RuleSelect />
-      {supported && !isInstalled ? (
-        <button className={styles.button} onClick={handleClick}>
-          ホームへ追加
-        </button>
-      ) : null}
+      <button
+        className={styles.button}
+        disabled={isInstalled() || !supported()}
+        onClick={handleClick}
+      >
+        ホームへ追加
+      </button>
     </div>
   );
 };
