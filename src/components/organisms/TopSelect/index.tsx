@@ -1,5 +1,5 @@
 import RuleSelect from "components/molecules/RuleSelect";
-import React, { FC, useCallback } from "react";
+import { FC, useCallback } from "react";
 import { useReactPWAInstall } from "react-pwa-install";
 import styles from "./style.module.scss";
 

@@ -1,5 +1,5 @@
 import Slider, { SliderProps } from "components/molecules/Slider";
-import React, { ComponentPropsWithoutRef, FC, useMemo, useState } from "react";
+import { ComponentPropsWithoutRef, FC, useMemo, useState } from "react";
 import { Controller, UseControllerOptions } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import styles from "./style.module.scss";

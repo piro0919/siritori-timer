@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from "react";
+import { FC, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import Footer from "../Footer";
 import Header from "../Header";

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import Pages from "./pages";
 import { Switch, Route } from "react-router-dom";
 import Expert from "./pages/expert";

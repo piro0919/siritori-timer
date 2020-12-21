@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import Timer from "components/molecules/Timer";
 import { useHistory, useLocation } from "react-router-dom";
 import { parse } from "query-string";
@@ -48,10 +48,10 @@ const Game: FC = () => {
               ? styles.previous
               : ""
           }
+          key={key}
         >
           <Timer
             addLoser={addLoser}
-            key={key}
             index={index}
             minute={parseFloat(time as string)}
             resume={currentPlayer === index}

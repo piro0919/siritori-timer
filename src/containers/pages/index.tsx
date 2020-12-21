@@ -1,6 +1,6 @@
 import Top from "components/organisms/Top";
 import Layout from "components/templates/Layout";
-import React, { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useHistory, useLocation } from "react-router-dom";
 import useLocalstorage from "@rooks/use-localstorage";

@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef, FC, useMemo } from "react";
+import { ComponentPropsWithoutRef, FC, useMemo } from "react";
 import styles from "./style.module.scss";
 import { useWindowHeight } from "@react-hook/window-size";
 import NoSSR from "react-no-ssr";

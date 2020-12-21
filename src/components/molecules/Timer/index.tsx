@@ -1,8 +1,9 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import useInterval from "@rooks/use-interval";
 import prettyMilliseconds from "pretty-ms";
 import styles from "./style.module.scss";
 import sound from "./sounds/decision32.mp3";
+import { Howl } from "howler";
 
 export type TimerProps = {
   addLoser: (index: number) => void;
@@ -27,7 +28,14 @@ const Timer: FC<TimerProps> = ({
   const [start, stop] = useInterval(() => {
     setTimer((prevTimer) => (prevTimer - 100 >= 0 ? prevTimer - 100 : 0));
   }, 100);
-  const ref = useRef<HTMLAudioElement>(null);
+  const howl = useMemo(
+    () =>
+      new Howl({
+        src: [sound],
+        volume: 0.5,
+      }),
+    []
+  );
 
   useEffect(() => {
     if (resume) {
@@ -42,28 +50,22 @@ const Timer: FC<TimerProps> = ({
   }, [resume, setRevertTime]);
 
   useEffect(() => {
-    if (!resume) {
+    if (timer !== 0) {
       return;
     }
 
-    if (timer === 0) {
-      addLoser(index);
-      stop();
-      startNextPlayer();
+    addLoser(index);
+    stop();
+    startNextPlayer();
+  }, [addLoser, index, startNextPlayer, stop, timer]);
 
+  useEffect(() => {
+    if (!resume || timer % 1000) {
       return;
     }
 
-    const { current } = ref;
-
-    if (!current || timer % 1000) {
-      return;
-    }
-
-    current.currentTime = 0.021;
-    current.play();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLoser, index, resume, startNextPlayer, timer]);
+    howl.play();
+  }, [howl, resume, timer]);
 
   useEffect(() => {
     if (typeof revertTime === "undefined") {
@@ -79,9 +81,6 @@ const Timer: FC<TimerProps> = ({
       disabled={!resume}
       onClick={startNextPlayer}
     >
-      <audio preload="auto" ref={ref}>
-        <source src={sound} type="audio/mp3" />
-      </audio>
       {prettyMilliseconds(timer, {
         colonNotation: true,
         keepDecimalsOnWholeSeconds: true,

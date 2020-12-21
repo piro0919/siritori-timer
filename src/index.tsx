@@ -1,4 +1,4 @@
-import React, { StrictMode } from "react";
+import { StrictMode } from "react";
 import { hydrate, render } from "react-dom";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";

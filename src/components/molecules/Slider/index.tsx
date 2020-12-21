@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo } from "react";
+import { FC, useEffect, useMemo } from "react";
 import RcSlider, {
   createSliderWithTooltip,
   SliderProps as RcSliderProps,
