@@ -4,6 +4,7 @@ import prettyMilliseconds from "pretty-ms";
 import styles from "./style.module.scss";
 import sound from "./sounds/decision32.mp3";
 import { Howl } from "howler";
+import useLocalstorage from "@rooks/use-localstorage";
 
 export type TimerProps = {
   addLoser: (index: number) => void;
@@ -28,13 +29,14 @@ const Timer: FC<TimerProps> = ({
   const [start, stop] = useInterval(() => {
     setTimer((prevTimer) => (prevTimer - 100 >= 0 ? prevTimer - 100 : 0));
   }, 100);
+  const [volume] = useLocalstorage("volume", 1);
   const howl = useMemo(
     () =>
       new Howl({
+        volume,
         src: [sound],
-        volume: 0.5,
       }),
-    []
+    [volume]
   );
 
   useEffect(() => {
@@ -57,15 +59,21 @@ const Timer: FC<TimerProps> = ({
     addLoser(index);
     stop();
     startNextPlayer();
-  }, [addLoser, index, startNextPlayer, stop, timer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addLoser, index, startNextPlayer, timer]);
 
   useEffect(() => {
-    if (!resume || timer % 1000) {
+    if (
+      !resume ||
+      timer === minute * 60 * 1000 ||
+      timer === 0 ||
+      timer % 1000
+    ) {
       return;
     }
 
     howl.play();
-  }, [howl, resume, timer]);
+  }, [howl, minute, resume, timer]);
 
   useEffect(() => {
     if (typeof revertTime === "undefined") {

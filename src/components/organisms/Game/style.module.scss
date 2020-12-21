@@ -14,8 +14,11 @@
 .timersWrapper {
   display: grid;
   gap: 16px;
-  grid-template: repeat(auto-fill, 1fr) / 1fr;
   height: 100%;
+
+  @media (orientation: landscape) {
+    grid-template: auto / repeat(2, 1fr);
+  }
 }
 
 .previous {

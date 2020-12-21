@@ -12,9 +12,7 @@ import ReactPWAInstallProvider from "react-pwa-install";
 const rootElement = document.getElementById("root");
 const element = (
   <StrictMode>
-    <ReactPWAInstallProvider
-      enableLogging={process.env.NODE_ENV === "development"}
-    >
+    <ReactPWAInstallProvider>
       <Router>
         <Containers />
       </Router>

@@ -9,8 +9,13 @@ import { GrPlayFill, GrRevert, GrStopFill } from "react-icons/gr";
 import usePreviousDifferent from "@rooks/use-previous-different";
 import { IoReload } from "react-icons/io5";
 import swal from "sweetalert";
+import { Howl } from "howler";
+import sound from "./sounds/c.mp3";
+import sound2 from "./sounds/c2.mp3";
+import useLocalstorage from "@rooks/use-localstorage";
 
 const Game: FC = () => {
+  const [volume] = useLocalstorage("volume", 1);
   const { search } = useLocation();
   const [currentPlayer, setCurrentPlayer] = useState<number | undefined>(
     undefined
@@ -97,6 +102,22 @@ const Game: FC = () => {
   const handleClickOnReload = useCallback(() => {
     go(0);
   }, [go]);
+  const howl = useMemo(
+    () =>
+      new Howl({
+        volume,
+        src: [sound],
+      }),
+    [volume]
+  );
+  const howl2 = useMemo(
+    () =>
+      new Howl({
+        volume,
+        src: [sound2],
+      }),
+    [volume]
+  );
 
   useEffect(() => {
     if (!countdown) {
@@ -133,18 +154,37 @@ const Game: FC = () => {
         reload: { text: "もう1度遊ぶ", value: "reload" },
         toHome: { text: "トップへ戻る", value: "toHome" },
       },
+      closeOnClickOutside: true,
       icon: "success",
       title: `${winner + 1}P Win!`,
     }).then((value) => {
-      if (value === "reload") {
-        go(0);
+      switch (value) {
+        case "reload": {
+          go(0);
 
-        return;
+          break;
+        }
+        case "toHome": {
+          push("/");
+
+          break;
+        }
+        default: {
+          break;
+        }
       }
-
-      push("/");
     });
   }, [go, losers, players, push]);
+
+  useEffect(() => {
+    if (countdown) {
+      howl.play();
+
+      return;
+    }
+
+    howl2.play();
+  }, [countdown, howl, howl2]);
 
   return (
     <div className={styles.wrapper}>

@@ -4,6 +4,12 @@
   grid-template: 1fr / auto;
 }
 
+.buttonsWrapper {
+  display: grid;
+  gap: 32px;
+  grid-template: 1fr / repeat(2, 1fr);
+}
+
 .button {
   background: #000;
   border-radius: 4px;

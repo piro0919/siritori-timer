@@ -1,14 +1,24 @@
 import Slider, { SliderProps } from "components/molecules/Slider";
-import { ComponentPropsWithoutRef, FC, useMemo, useState } from "react";
+import { Howl } from "howler";
+import {
+  ComponentPropsWithoutRef,
+  FC,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Controller, UseControllerOptions } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import styles from "./style.module.scss";
+import sound from "./sounds/decision29.mp3";
+import useLocalstorage from "@rooks/use-localstorage";
 
 export type RuleProps = Pick<UseControllerOptions, "control"> & {
   handleSubmit: ComponentPropsWithoutRef<"form">["onSubmit"];
 };
 
 const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
+  const [volume] = useLocalstorage("volume", 1);
   const [player, setPlayer] = useState(0);
   const [time, setTime] = useState(0);
   const { pathname } = useLocation();
@@ -17,6 +27,19 @@ const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
     [pathname]
   );
   const [minutes, seconds] = time ? time.toString().split(".") : [];
+  const howl = useMemo(
+    () =>
+      new Howl({
+        volume,
+        src: [sound],
+      }),
+    [volume]
+  );
+  const handleClick = useCallback<
+    NonNullable<ComponentPropsWithoutRef<"button">["onClick"]>
+  >(() => {
+    howl.play();
+  }, [howl]);
 
   return (
     <section className={styles.wrapper}>
@@ -76,7 +99,11 @@ const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
             />
           </fieldset>
           <footer className={styles.footer}>
-            <button className={styles.button} type="submit">
+            <button
+              className={styles.button}
+              onClick={handleClick}
+              type="submit"
+            >
               レッツパーティ！
             </button>
           </footer>
