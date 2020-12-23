@@ -17,10 +17,12 @@ const element = (
   </StrictMode>
 );
 
-if (rootElement && rootElement.hasChildNodes()) {
-  hydrate(element, rootElement);
-} else {
-  render(element, rootElement);
+if (rootElement) {
+  if (rootElement.hasChildNodes()) {
+    hydrate(element, rootElement);
+  } else {
+    render(element, rootElement);
+  }
 }
 
 // If you want your app to work offline and load faster, you can change

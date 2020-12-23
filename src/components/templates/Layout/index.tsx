@@ -58,14 +58,14 @@ const Layout: FC = ({ children }) => {
         <div className={styles.wrapper} style={style}>
           <div className={styles.background} />
           <div className={styles.inner}>{children}</div>
+          <ReactHowler
+            onEnd={handleEnd}
+            playing={playing}
+            src={sound}
+            volume={volume}
+          />
         </div>
       </NoSSR>
-      <ReactHowler
-        onEnd={handleEnd}
-        playing={playing}
-        src={sound}
-        volume={volume}
-      />
     </VolumeContext.Provider>
   );
 };
