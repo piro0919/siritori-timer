@@ -44,7 +44,7 @@ const Game: FC = () => {
   }, [players.length]);
   const [revertTime, setRevertTime] = useState<number | undefined>();
   const [revertPlayer, setRevertPlayer] = useState<number | undefined>();
-  const previousPlayer = usePreviousDifferent(currentPlayer) || undefined;
+  const previousPlayer = usePreviousDifferent(currentPlayer);
   const [losers, setLosers] = useState<number[]>([]);
   const addLoser = useCallback((index: number) => {
     setLosers((prevLosers) => [...prevLosers, index]);
@@ -107,26 +107,31 @@ const Game: FC = () => {
     () => (typeof currentPlayer === "undefined" ? "play" : "stop"),
     [currentPlayer]
   );
+  const handleClick = useCallback(() => {
+    howlPlayOnCountdown();
+    start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [howlPlayOnCountdown]);
   const portal = useMemo(() => {
     const rootElement = document.getElementById("root");
 
     return countdown && rootElement
       ? createPortal(
-          <div className={styles.countdownWrapper}>{countdown}</div>,
+          <div className={styles.countdownWrapper} onClick={handleClick}>
+            {countdown}
+          </div>,
           rootElement
         )
       : null;
-  }, [countdown]);
+  }, [countdown, handleClick]);
 
   useEffect(() => {
-    if (!countdown) {
-      stop();
-      setCurrentPlayer(0);
-
+    if (countdown) {
       return;
     }
 
-    start();
+    stop();
+    setCurrentPlayer(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countdown]);
 
@@ -176,6 +181,10 @@ const Game: FC = () => {
   }, [go, losers, players, push]);
 
   useEffect(() => {
+    if (countdown === 3) {
+      return;
+    }
+
     if (countdown) {
       howlPlayOnCountdown();
 
@@ -193,7 +202,9 @@ const Game: FC = () => {
           currentPlayer={currentPlayer}
           minute={minute}
           players={players}
-          previousPlayer={previousPlayer}
+          previousPlayer={
+            typeof previousPlayer === "number" ? previousPlayer : undefined
+          }
           revertPlayer={revertPlayer}
           revertTime={revertTime}
           setRevertTime={setRevertTime}

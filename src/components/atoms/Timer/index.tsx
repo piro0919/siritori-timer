@@ -75,12 +75,7 @@ const Timer: FC<TimerProps> = ({
   }, [addLoser, index, startNextPlayer, timer]);
 
   useEffect(() => {
-    if (
-      !resume ||
-      timer === minute * 60 * 1000 ||
-      timer === 0 ||
-      timer % 1000
-    ) {
+    if (!resume || timer === 0 || timer % 1000) {
       return;
     }
 
