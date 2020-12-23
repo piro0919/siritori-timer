@@ -7,18 +7,5 @@
 .buttonsWrapper {
   display: grid;
   gap: 32px;
-  grid-template: 1fr / repeat(2, 1fr);
-}
-
-.button {
-  background: #000;
-  border-radius: 4px;
-  color: #fff;
-  font-weight: 900;
-  text-align: center;
-  padding: 16px;
-}
-
-.button:disabled {
-  opacity: 0.5;
+  grid-template: 1fr / repeat(auto-fit, minmax(calc(50% - 16px), 1fr));
 }

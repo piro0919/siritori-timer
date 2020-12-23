@@ -1,0 +1,9 @@
+.wrapper {
+  display: grid;
+  gap: 16px;
+  height: 100%;
+
+  @media (orientation: landscape) {
+    grid-template: auto / repeat(2, 1fr);
+  }
+}

@@ -1,56 +1,47 @@
 import RuleSelect from "components/molecules/RuleSelect";
 import { FC, useCallback, useMemo } from "react";
-import { useReactPWAInstall } from "react-pwa-install";
 import styles from "./style.module.scss";
 import useLocalstorage from "@rooks/use-localstorage";
-import { Howl } from "howler";
 import sound from "./sounds/decision29.mp3";
+import usePwa from "use-pwa";
+import Button from "components/atoms/Button";
+import useHowl from "hooks/useHowl";
 
 const TopSelect: FC = () => {
-  const { isInstalled, pwaInstall, supported } = useReactPWAInstall();
+  const { enabledPwa, handleClickOnInstallPrompt, isPwa } = usePwa();
   const [volume, setVolume] = useLocalstorage("volume", 1);
-  const handleClick = useCallback(() => {
-    pwaInstall({
-      title: "限界しりとりタイマー インストール",
-      logo: "/logo192.png",
-      description: "限界しりとりパーティーの非公式タイマーアプリです",
-    })
-      .then(() => {})
-      .catch(() => {});
-  }, [pwaInstall]);
-  const howl = useMemo(
-    () =>
-      new Howl({
-        src: [sound],
-      }),
-    []
-  );
-  const handleClick2 = useCallback(() => {
+  const { howlPlay, howlSetVolume } = useHowl({
+    howlOptions: {
+      volume,
+      src: sound,
+    },
+  });
+  const handleClickOnToggleSound = useCallback(() => {
     const nextVolume = volume ? 0 : 1;
 
     setVolume(nextVolume);
 
-    if (!nextVolume) {
-      return;
-    }
+    howlSetVolume(nextVolume);
 
-    howl.play();
-  }, [howl, setVolume, volume]);
+    howlPlay();
+  }, [howlPlay, howlSetVolume, setVolume, volume]);
+  const volumeText = useMemo(() => `サウンド：${volume ? "オン" : "オフ"}`, [
+    volume,
+  ]);
 
   return (
     <div className={styles.wrapper}>
-      <RuleSelect volume={volume} />
+      <RuleSelect />
       <div className={styles.buttonsWrapper}>
-        <button className={styles.button} onClick={handleClick2}>{`サウンド：${
-          volume ? "オン" : "オフ"
-        }`}</button>
-        <button
-          className={styles.button}
-          disabled={isInstalled() || !supported()}
-          onClick={handleClick}
-        >
-          ホームへ追加
-        </button>
+        <Button handleClick={handleClickOnToggleSound}>{volumeText}</Button>
+        {isPwa ? null : (
+          <Button
+            disabled={!enabledPwa}
+            handleClick={handleClickOnInstallPrompt}
+          >
+            ホームへ追加
+          </Button>
+        )}
       </div>
     </div>
   );

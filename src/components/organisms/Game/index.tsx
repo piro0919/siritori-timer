@@ -1,123 +1,122 @@
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import Timer from "components/molecules/Timer";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { parse } from "query-string";
 import uniqid from "uniqid";
 import styles from "./style.module.scss";
 import useInterval from "@rooks/use-interval";
-import { GrPlayFill, GrRevert, GrStopFill } from "react-icons/gr";
 import usePreviousDifferent from "@rooks/use-previous-different";
-import { IoReload } from "react-icons/io5";
 import swal from "sweetalert";
-import { Howl } from "howler";
 import sound from "./sounds/c.mp3";
 import sound2 from "./sounds/c2.mp3";
 import useLocalstorage from "@rooks/use-localstorage";
+import useHowl from "hooks/useHowl";
+import GameController from "components/organisms/GameController";
+import Timers from "../Timers";
+import { createPortal } from "react-dom";
 
 const Game: FC = () => {
-  const [volume] = useLocalstorage("volume", 1);
   const { search } = useLocation();
-  const [currentPlayer, setCurrentPlayer] = useState<number | undefined>(
-    undefined
-  );
-  const { player, time } = parse(search);
+  const parsedQuery = useMemo(() => parse(search), [search]);
+  const { minute, player } = useMemo(() => {
+    const { player, time } = parsedQuery;
+
+    return {
+      minute: typeof time === "string" ? parseFloat(time) : 0,
+      player: typeof player === "string" ? parseInt(player as string, 10) : 0,
+    };
+  }, [parsedQuery]);
+  const [volume] = useLocalstorage("volume", 1);
+  const [currentPlayer, setCurrentPlayer] = useState<number | undefined>();
   const players = useMemo(
     () =>
-      [...Array(parseInt(player as string, 10))].map(() => ({
+      [...Array(player)].map(() => ({
         key: uniqid(),
       })),
     [player]
   );
   const startNextPlayer = useCallback(() => {
-    setCurrentPlayer((prevNextPlayer) => {
-      if (typeof prevNextPlayer === "undefined") {
-        return 0;
-      }
-
-      return prevNextPlayer + 1 >= players.length ? 0 : prevNextPlayer + 1;
-    });
+    setCurrentPlayer((prevNextPlayer) =>
+      typeof prevNextPlayer !== "undefined" &&
+      prevNextPlayer + 1 < players.length
+        ? prevNextPlayer + 1
+        : 0
+    );
   }, [players.length]);
   const [revertTime, setRevertTime] = useState<number | undefined>();
   const [revertPlayer, setRevertPlayer] = useState<number | undefined>();
-  const previousPlayer = usePreviousDifferent(currentPlayer);
+  const previousPlayer = usePreviousDifferent(currentPlayer) || undefined;
   const [losers, setLosers] = useState<number[]>([]);
   const addLoser = useCallback((index: number) => {
     setLosers((prevLosers) => [...prevLosers, index]);
   }, []);
-  const timers = useMemo(
-    () =>
-      players.map(({ key }, index) => (
-        <div
-          className={
-            typeof currentPlayer === "undefined" && previousPlayer === index
-              ? styles.previous
-              : ""
-          }
-          key={key}
-        >
-          <Timer
-            addLoser={addLoser}
-            index={index}
-            minute={parseFloat(time as string)}
-            resume={currentPlayer === index}
-            revertTime={revertPlayer === index ? revertTime : undefined}
-            setRevertTime={setRevertTime}
-            startNextPlayer={startNextPlayer}
-          />
-        </div>
-      )),
-    [
-      addLoser,
-      currentPlayer,
-      players,
-      previousPlayer,
-      revertPlayer,
-      revertTime,
-      startNextPlayer,
-      time,
-    ]
-  );
   const [countdown, setCountdown] = useState(3);
-  const [start, stop] = useInterval(() => {
+  const callback = useCallback(() => {
     setCountdown((prevCountdown) => prevCountdown - 1);
-  }, 1000);
+  }, []);
+  const [start, stop] = useInterval(callback, 1000);
   const handleClickOnStart = useCallback(() => {
-    if (previousPlayer === null) {
-      return;
-    }
-
-    setCurrentPlayer(previousPlayer);
+    setCurrentPlayer(
+      typeof previousPlayer === "number" ? previousPlayer : undefined
+    );
   }, [previousPlayer]);
   const handleClickOnStop = useCallback(() => {
     setCurrentPlayer(undefined);
   }, []);
   const handleClickOnRevert = useCallback(() => {
-    if (previousPlayer === null) {
-      return;
-    }
-
-    setRevertPlayer(previousPlayer);
+    setRevertPlayer(
+      typeof previousPlayer === "number" ? previousPlayer : undefined
+    );
   }, [previousPlayer]);
   const { go, push } = useHistory();
   const handleClickOnReload = useCallback(() => {
     go(0);
   }, [go]);
-  const howl = useMemo(
-    () =>
-      new Howl({
-        volume,
-        src: [sound],
-      }),
-    [volume]
+  const { howlPlay: howlPlayOnCountdown } = useHowl({
+    howlOptions: {
+      volume,
+      src: sound,
+    },
+  });
+  const { howlPlay: howlPlayOnStart } = useHowl({
+    howlOptions: {
+      volume,
+      src: sound2,
+    },
+  });
+  const disabledPlay = useMemo(
+    () => countdown > 0 || losers.length >= players.length - 1,
+    [countdown, losers.length, players.length]
   );
-  const howl2 = useMemo(
-    () =>
-      new Howl({
-        volume,
-        src: [sound2],
-      }),
-    [volume]
+  const disabledReload = useMemo(
+    () => typeof currentPlayer !== "undefined" || countdown > 0,
+    [countdown, currentPlayer]
   );
+  const disabledRevert = useMemo(
+    () =>
+      typeof currentPlayer !== "undefined" ||
+      typeof revertTime === "undefined" ||
+      countdown > 0 ||
+      losers.length >= players.length - 1,
+    [countdown, currentPlayer, losers.length, players.length, revertTime]
+  );
+  const disabledStop = useMemo(
+    () => countdown > 0 || losers.length >= players.length - 1,
+    [countdown, losers.length, players.length]
+  );
+  const displayButton = useMemo(
+    () => (typeof currentPlayer === "undefined" ? "play" : "stop"),
+    [currentPlayer]
+  );
+  const portal = useMemo(() => {
+    const rootElement = document.getElementById("root");
+
+    return countdown && rootElement
+      ? createPortal(
+          <div className={styles.countdownWrapper}>{countdown}</div>,
+          rootElement
+        )
+      : null;
+  }, [countdown]);
 
   useEffect(() => {
     if (!countdown) {
@@ -147,8 +146,6 @@ const Game: FC = () => {
 
     setCurrentPlayer(undefined);
 
-    const winner = players.findIndex((_, index) => !losers.includes(index));
-
     swal({
       buttons: {
         reload: { text: "もう1度遊ぶ", value: "reload" },
@@ -156,21 +153,23 @@ const Game: FC = () => {
       },
       closeOnClickOutside: true,
       icon: "success",
-      title: `${winner + 1}P Win!`,
+      title: `${
+        players.findIndex((_, index) => !losers.includes(index)) + 1
+      }P Win!`,
     }).then((value) => {
       switch (value) {
         case "reload": {
           go(0);
 
-          break;
+          return;
         }
         case "toHome": {
           push("/");
 
-          break;
+          return;
         }
         default: {
-          break;
+          return;
         }
       }
     });
@@ -178,72 +177,41 @@ const Game: FC = () => {
 
   useEffect(() => {
     if (countdown) {
-      howl.play();
+      howlPlayOnCountdown();
 
       return;
     }
 
-    howl2.play();
-  }, [countdown, howl, howl2]);
+    howlPlayOnStart();
+  }, [countdown, howlPlayOnCountdown, howlPlayOnStart]);
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.wrapper2}>
-        <div className={styles.timersWrapper}>{timers}</div>
-        <aside className={styles.aside}>
-          {typeof currentPlayer === "undefined" ? (
-            <button
-              className={styles.button}
-              disabled={
-                typeof currentPlayer !== "undefined" ||
-                countdown > 0 ||
-                losers.length >= players.length - 1
-              }
-              onClick={handleClickOnStart}
-            >
-              <GrPlayFill size={20} />
-            </button>
-          ) : (
-            <button
-              className={styles.button}
-              disabled={
-                typeof currentPlayer === "undefined" ||
-                countdown > 0 ||
-                losers.length >= players.length - 1
-              }
-              onClick={handleClickOnStop}
-            >
-              <GrStopFill size={20} />
-            </button>
-          )}
-          <button
-            className={styles.button}
-            disabled={
-              typeof currentPlayer !== "undefined" ||
-              typeof revertTime === "undefined" ||
-              countdown > 0 ||
-              losers.length >= players.length - 1
-            }
-            onClick={handleClickOnRevert}
-          >
-            <GrRevert size={24} />
-          </button>
-          <button
-            className={styles.button}
-            disabled={typeof currentPlayer !== "undefined" || countdown > 0}
-            onClick={handleClickOnReload}
-          >
-            <IoReload size={24} />
-          </button>
-        </aside>
+      <div className={styles.inner}>
+        <Timers
+          addLoser={addLoser}
+          currentPlayer={currentPlayer}
+          minute={minute}
+          players={players}
+          previousPlayer={previousPlayer}
+          revertPlayer={revertPlayer}
+          revertTime={revertTime}
+          setRevertTime={setRevertTime}
+          startNextPlayer={startNextPlayer}
+        />
+        <GameController
+          disabledPlay={disabledPlay}
+          disabledReload={disabledReload}
+          disabledRevert={disabledRevert}
+          disabledStop={disabledStop}
+          displayButton={displayButton}
+          handleClickOnReload={handleClickOnReload}
+          handleClickOnRevert={handleClickOnRevert}
+          handleClickOnStart={handleClickOnStart}
+          handleClickOnStop={handleClickOnStop}
+        />
       </div>
-      <div
-        className={`${styles.countdownWrapper} ${
-          countdown === 0 ? styles.start : ""
-        }`}
-      >
-        {countdown}
-      </div>
+      {portal}
     </div>
   );
 };

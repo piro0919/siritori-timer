@@ -1,5 +1,4 @@
 import Slider, { SliderProps } from "components/molecules/Slider";
-import { Howl } from "howler";
 import {
   ComponentPropsWithoutRef,
   FC,
@@ -12,6 +11,7 @@ import { useLocation } from "react-router-dom";
 import styles from "./style.module.scss";
 import sound from "./sounds/decision29.mp3";
 import useLocalstorage from "@rooks/use-localstorage";
+import useHowl from "hooks/useHowl";
 
 export type RuleProps = Pick<UseControllerOptions, "control"> & {
   handleSubmit: ComponentPropsWithoutRef<"form">["onSubmit"];
@@ -26,20 +26,21 @@ const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
     () => pathname === "/expert",
     [pathname]
   );
-  const [minutes, seconds] = time ? time.toString().split(".") : [];
-  const howl = useMemo(
-    () =>
-      new Howl({
-        volume,
-        src: [sound],
-      }),
-    [volume]
+  const [minutes, seconds] = useMemo(
+    () => (time ? time.toString().split(".") : []),
+    [time]
   );
+  const { howlPlay } = useHowl({
+    howlOptions: {
+      volume,
+      src: sound,
+    },
+  });
   const handleClick = useCallback<
     NonNullable<ComponentPropsWithoutRef<"button">["onClick"]>
   >(() => {
-    howl.play();
-  }, [howl]);
+    howlPlay();
+  }, [howlPlay]);
 
   return (
     <section className={styles.wrapper}>

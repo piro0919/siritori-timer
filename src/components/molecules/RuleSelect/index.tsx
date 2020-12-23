@@ -1,23 +1,21 @@
-import { FC, useCallback, useMemo } from "react";
+import { FC, useCallback } from "react";
 import styles from "./style.module.scss";
 import { Link, LinkProps } from "react-router-dom";
-import { Howl, HowlOptions } from "howler";
 import sound from "./sounds/decision29.mp3";
+import useHowl from "hooks/useHowl";
+import useLocalstorage from "@rooks/use-localstorage";
 
-export type RuleSelectProps = Pick<HowlOptions, "volume">;
-
-const RuleSelect: FC<RuleSelectProps> = ({ volume }) => {
-  const howl = useMemo(
-    () =>
-      new Howl({
-        volume,
-        src: [sound],
-      }),
-    [volume]
-  );
+const RuleSelect: FC = () => {
+  const [volume] = useLocalstorage("volume", 1);
+  const { howlPlay } = useHowl({
+    howlOptions: {
+      volume,
+      src: sound,
+    },
+  });
   const handleClick = useCallback<NonNullable<LinkProps["onClick"]>>(() => {
-    howl.play();
-  }, [howl]);
+    howlPlay();
+  }, [howlPlay]);
 
   return (
     <div className={styles.wrapper}>

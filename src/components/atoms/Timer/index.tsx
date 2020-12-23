@@ -1,14 +1,15 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import useInterval from "@rooks/use-interval";
 import prettyMilliseconds from "pretty-ms";
 import styles from "./style.module.scss";
 import sound from "./sounds/decision32.mp3";
-import { Howl } from "howler";
 import useLocalstorage from "@rooks/use-localstorage";
+import useHowl from "hooks/useHowl";
 
 export type TimerProps = {
   addLoser: (index: number) => void;
   index: number;
+  isStopCurrent: boolean;
   minute: number;
   resume: boolean;
   revertTime?: number;
@@ -19,6 +20,7 @@ export type TimerProps = {
 const Timer: FC<TimerProps> = ({
   addLoser,
   index,
+  isStopCurrent,
   minute,
   resume,
   revertTime,
@@ -26,17 +28,27 @@ const Timer: FC<TimerProps> = ({
   startNextPlayer,
 }) => {
   const [timer, setTimer] = useState(minute * 60 * 1000);
-  const [start, stop] = useInterval(() => {
-    setTimer((prevTimer) => (prevTimer - 100 >= 0 ? prevTimer - 100 : 0));
-  }, 100);
+  const intervalDuration = useMemo(() => 100, []);
+  const callback = useCallback(() => {
+    setTimer((prevTimer) =>
+      prevTimer - intervalDuration >= 0 ? prevTimer - intervalDuration : 0
+    );
+  }, [intervalDuration]);
+  const [start, stop] = useInterval(callback, intervalDuration);
   const [volume] = useLocalstorage("volume", 1);
-  const howl = useMemo(
+  const { howlPlay } = useHowl({
+    howlOptions: {
+      volume,
+      src: sound,
+    },
+  });
+  const time = useMemo(
     () =>
-      new Howl({
-        volume,
-        src: [sound],
+      prettyMilliseconds(timer, {
+        colonNotation: true,
+        keepDecimalsOnWholeSeconds: true,
       }),
-    [volume]
+    [timer]
   );
 
   useEffect(() => {
@@ -52,7 +64,7 @@ const Timer: FC<TimerProps> = ({
   }, [resume, setRevertTime]);
 
   useEffect(() => {
-    if (timer !== 0) {
+    if (timer) {
       return;
     }
 
@@ -72,8 +84,8 @@ const Timer: FC<TimerProps> = ({
       return;
     }
 
-    howl.play();
-  }, [howl, minute, resume, timer]);
+    howlPlay();
+  }, [howlPlay, minute, resume, timer]);
 
   useEffect(() => {
     if (typeof revertTime === "undefined") {
@@ -85,14 +97,11 @@ const Timer: FC<TimerProps> = ({
 
   return (
     <button
-      className={styles.button}
+      className={`${styles.button} ${isStopCurrent ? styles.stop : ""}`}
       disabled={!resume}
       onClick={startNextPlayer}
     >
-      {prettyMilliseconds(timer, {
-        colonNotation: true,
-        keepDecimalsOnWholeSeconds: true,
-      })}
+      {time}
     </button>
   );
 };

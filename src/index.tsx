@@ -7,16 +7,13 @@ import Containers from "containers";
 import "./styles/global.scss";
 import { BrowserRouter as Router } from "react-router-dom";
 import "rc-slider/assets/index.css";
-import ReactPWAInstallProvider from "react-pwa-install";
 
 const rootElement = document.getElementById("root");
 const element = (
   <StrictMode>
-    <ReactPWAInstallProvider>
-      <Router>
-        <Containers />
-      </Router>
-    </ReactPWAInstallProvider>
+    <Router>
+      <Containers />
+    </Router>
   </StrictMode>
 );
 
