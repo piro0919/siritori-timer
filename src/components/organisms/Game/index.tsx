@@ -1,4 +1,11 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { parse } from "query-string";
 import uniqid from "uniqid";
@@ -8,11 +15,11 @@ import usePreviousDifferent from "@rooks/use-previous-different";
 import swal from "sweetalert";
 import sound from "./sounds/c.mp3";
 import sound2 from "./sounds/c2.mp3";
-import useLocalstorage from "@rooks/use-localstorage";
-import useHowl from "hooks/useHowl";
 import GameController from "components/organisms/GameController";
 import Timers from "../Timers";
 import { createPortal } from "react-dom";
+import VolumeContext from "contexts/VolumeContext";
+import ReactHowler from "react-howler";
 
 const Game: FC = () => {
   const { search } = useLocation();
@@ -25,7 +32,6 @@ const Game: FC = () => {
       player: typeof player === "string" ? parseInt(player as string, 10) : 0,
     };
   }, [parsedQuery]);
-  const [volume] = useLocalstorage("volume", 1);
   const [currentPlayer, setCurrentPlayer] = useState<number | undefined>();
   const players = useMemo(
     () =>
@@ -49,6 +55,7 @@ const Game: FC = () => {
   const addLoser = useCallback((index: number) => {
     setLosers((prevLosers) => [...prevLosers, index]);
   }, []);
+  const [isTouched, setIsTouched] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const callback = useCallback(() => {
     setCountdown((prevCountdown) => prevCountdown - 1);
@@ -71,18 +78,7 @@ const Game: FC = () => {
   const handleClickOnReload = useCallback(() => {
     go(0);
   }, [go]);
-  const { howlPlay: howlPlayOnCountdown } = useHowl({
-    howlOptions: {
-      volume,
-      src: sound,
-    },
-  });
-  const { howlPlay: howlPlayOnStart } = useHowl({
-    howlOptions: {
-      volume,
-      src: sound2,
-    },
-  });
+  const { volume } = useContext(VolumeContext);
   const disabledPlay = useMemo(
     () => countdown > 0 || losers.length >= players.length - 1,
     [countdown, losers.length, players.length]
@@ -108,22 +104,32 @@ const Game: FC = () => {
     [currentPlayer]
   );
   const handleClick = useCallback(() => {
-    howlPlayOnCountdown();
-    start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [howlPlayOnCountdown]);
+    setIsTouched(true);
+  }, []);
   const portal = useMemo(() => {
     const rootElement = document.getElementById("root");
 
     return countdown && rootElement
       ? createPortal(
           <div className={styles.countdownWrapper} onClick={handleClick}>
-            {countdown}
+            {isTouched ? (
+              countdown
+            ) : (
+              <div className={styles.touchStart}>Touch start!</div>
+            )}
           </div>,
           rootElement
         )
       : null;
-  }, [countdown, handleClick]);
+  }, [countdown, handleClick, isTouched]);
+  const [playingCountdown, setPlayingCountdown] = useState(false);
+  const [playingStart, setPlayingStart] = useState(false);
+  const handleEndOnCountdown = useCallback(() => {
+    setPlayingCountdown(false);
+  }, []);
+  const handleEndOnStart = useCallback(() => {
+    setPlayingStart(false);
+  }, []);
 
   useEffect(() => {
     if (countdown) {
@@ -181,18 +187,27 @@ const Game: FC = () => {
   }, [go, losers, players, push]);
 
   useEffect(() => {
-    if (countdown === 3) {
+    if (!isTouched) {
       return;
     }
 
     if (countdown) {
-      howlPlayOnCountdown();
+      setPlayingCountdown(true);
 
       return;
     }
 
-    howlPlayOnStart();
-  }, [countdown, howlPlayOnCountdown, howlPlayOnStart]);
+    setPlayingStart(true);
+  }, [countdown, isTouched]);
+
+  useEffect(() => {
+    if (!isTouched) {
+      return;
+    }
+
+    start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTouched]);
 
   return (
     <div className={styles.wrapper}>
@@ -223,6 +238,18 @@ const Game: FC = () => {
         />
       </div>
       {portal}
+      <ReactHowler
+        onEnd={handleEndOnCountdown}
+        playing={playingCountdown}
+        src={sound}
+        volume={volume}
+      />
+      <ReactHowler
+        onEnd={handleEndOnStart}
+        playing={playingStart}
+        src={sound2}
+        volume={volume}
+      />
     </div>
   );
 };

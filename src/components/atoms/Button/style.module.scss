@@ -10,3 +10,7 @@
 .button:disabled {
   opacity: 0.5;
 }
+
+.button[type="submit"] {
+  background: #f00;
+}

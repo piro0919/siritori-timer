@@ -13,7 +13,7 @@
 
 .countdownWrapper {
   align-items: center;
-  background: rgba(#fff, 0.25);
+  background: rgba(#fff, 0.5);
   cursor: pointer;
   display: flex;
   font-size: 32rem;
@@ -22,7 +22,12 @@
   justify-content: center;
   left: 0;
   position: fixed;
+  text-align: center;
   top: 0;
   width: 100%;
   z-index: 1;
+}
+
+.touchStart {
+  font-size: 10rem;
 }

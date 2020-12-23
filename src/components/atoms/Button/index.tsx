@@ -3,13 +3,16 @@ import styles from "./style.module.scss";
 
 export type ButtonProps = Pick<
   ComponentPropsWithoutRef<"button">,
-  "disabled"
-> & {
-  handleClick: ComponentPropsWithoutRef<"button">["onClick"];
-};
+  "disabled" | "onClick" | "type"
+>;
 
-const Button: FC<ButtonProps> = ({ children, disabled, handleClick }) => (
-  <button className={styles.button} disabled={disabled} onClick={handleClick}>
+const Button: FC<ButtonProps> = ({ children, disabled, onClick, type }) => (
+  <button
+    className={styles.button}
+    disabled={disabled}
+    onClick={onClick}
+    type={type}
+  >
     {children}
   </button>
 );

@@ -1,10 +1,17 @@
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import useInterval from "@rooks/use-interval";
 import prettyMilliseconds from "pretty-ms";
 import styles from "./style.module.scss";
 import sound from "./sounds/decision32.mp3";
-import useLocalstorage from "@rooks/use-localstorage";
-import useHowl from "hooks/useHowl";
+import VolumeContext from "contexts/VolumeContext";
+import ReactHowler from "react-howler";
 
 export type TimerProps = {
   addLoser: (index: number) => void;
@@ -35,13 +42,8 @@ const Timer: FC<TimerProps> = ({
     );
   }, [intervalDuration]);
   const [start, stop] = useInterval(callback, intervalDuration);
-  const [volume] = useLocalstorage("volume", 1);
-  const { howlPlay } = useHowl({
-    howlOptions: {
-      volume,
-      src: sound,
-    },
-  });
+  const { volume } = useContext(VolumeContext);
+  const [playing, setPlaying] = useState(false);
   const time = useMemo(
     () =>
       prettyMilliseconds(timer, {
@@ -50,6 +52,9 @@ const Timer: FC<TimerProps> = ({
       }),
     [timer]
   );
+  const handleEnd = useCallback(() => {
+    setPlaying(false);
+  }, []);
 
   useEffect(() => {
     if (resume) {
@@ -79,8 +84,8 @@ const Timer: FC<TimerProps> = ({
       return;
     }
 
-    howlPlay();
-  }, [howlPlay, minute, resume, timer]);
+    setPlaying(true);
+  }, [resume, timer]);
 
   useEffect(() => {
     if (typeof revertTime === "undefined") {
@@ -97,6 +102,12 @@ const Timer: FC<TimerProps> = ({
       onClick={startNextPlayer}
     >
       {time}
+      <ReactHowler
+        onEnd={handleEnd}
+        playing={playing}
+        src={sound}
+        volume={volume}
+      />
     </button>
   );
 };
