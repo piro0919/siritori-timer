@@ -24,10 +24,11 @@ import ReactHowler from "react-howler";
 const Game: FC = () => {
   const { search } = useLocation();
   const parsedQuery = useMemo(() => parse(search), [search]);
-  const { minute, player } = useMemo(() => {
-    const { player, time } = parsedQuery;
+  const { minute, player, type } = useMemo(() => {
+    const { player, time, type } = parsedQuery;
 
     return {
+      type,
       minute: typeof time === "string" ? parseFloat(time) : 0,
       player: typeof player === "string" ? parseInt(player as string, 10) : 0,
     };
@@ -69,12 +70,15 @@ const Game: FC = () => {
   const handleClickOnStop = useCallback(() => {
     setCurrentPlayer(undefined);
   }, []);
+  const { go, push } = useHistory();
+  const handleClickOnReturn = useCallback(() => {
+    push(`/${type}`);
+  }, [push, type]);
   const handleClickOnRevert = useCallback(() => {
     setRevertPlayer(
       typeof previousPlayer === "number" ? previousPlayer : undefined
     );
   }, [previousPlayer]);
-  const { go, push } = useHistory();
   const handleClickOnReload = useCallback(() => {
     go(0);
   }, [go]);
@@ -84,6 +88,10 @@ const Game: FC = () => {
     [countdown, losers.length, players.length]
   );
   const disabledReload = useMemo(
+    () => typeof currentPlayer !== "undefined" || countdown > 0,
+    [countdown, currentPlayer]
+  );
+  const disabledReturn = useMemo(
     () => typeof currentPlayer !== "undefined" || countdown > 0,
     [countdown, currentPlayer]
   );
@@ -228,10 +236,12 @@ const Game: FC = () => {
         <GameController
           disabledPlay={disabledPlay}
           disabledReload={disabledReload}
+          disabledReturn={disabledReturn}
           disabledRevert={disabledRevert}
           disabledStop={disabledStop}
           displayButton={displayButton}
           handleClickOnReload={handleClickOnReload}
+          handleClickOnReturn={handleClickOnReturn}
           handleClickOnRevert={handleClickOnRevert}
           handleClickOnStart={handleClickOnStart}
           handleClickOnStop={handleClickOnStop}

@@ -40,7 +40,9 @@ const Pages: FC = () => {
         setParty(values);
       }
 
-      push(`/game?${stringify(values)}`);
+      push(
+        `/game?${stringify({ ...values, type: pathname.replace("/", "") })}`
+      );
     },
     [pathname, push, setExpert, setParty]
   );

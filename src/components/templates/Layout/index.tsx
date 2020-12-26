@@ -15,6 +15,8 @@ import useLocalstorage from "@rooks/use-localstorage";
 import usePreviousDifferent from "@rooks/use-previous-different";
 import VolumeContext from "contexts/VolumeContext";
 import ReactHowler from "react-howler";
+import PWAPrompt from "react-ios-pwa-prompt";
+import usePwa from "use-pwa";
 
 const Layout: FC = ({ children }) => {
   const onlyHeight = useWindowHeight();
@@ -39,6 +41,7 @@ const Layout: FC = ({ children }) => {
   const handleEnd = useCallback(() => {
     setPlaying(false);
   }, []);
+  const { enabledA2hs } = usePwa();
 
   useEffect(() => {
     set(volume);
@@ -64,6 +67,15 @@ const Layout: FC = ({ children }) => {
             src={sound}
             volume={volume}
           />
+          {enabledA2hs ? (
+            <PWAPrompt
+              copyAddHomeButtonLabel="2. 「ホーム画面に追加」をタップします"
+              copyBody="ホーム画面から「限界しりとりタイマー」を起動するとフルスクリーンで表示できるようになります。"
+              copyClosePrompt="閉じる"
+              copyShareButtonLabel="1. メニューバーに表示されている共有ボタンをタップします"
+              copyTitle="ホーム画面に追加"
+            />
+          ) : null}
         </div>
       </NoSSR>
     </VolumeContext.Provider>

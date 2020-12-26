@@ -1,7 +1,7 @@
 .aside {
   display: grid;
-  gap: 16px;
-  grid-template: 1fr / repeat(2, auto) 60px;
+  gap: 8px;
+  grid-template: 1fr / repeat(2, auto) 60px 60px;
 }
 
 .button {

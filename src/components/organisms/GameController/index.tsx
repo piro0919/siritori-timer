@@ -1,15 +1,20 @@
 import { ComponentPropsWithoutRef, FC, useMemo } from "react";
 import { GrPlayFill, GrRevert, GrStopFill } from "react-icons/gr";
-import { IoReload } from "react-icons/io5";
+import { IoReload, IoReturnDownBackOutline } from "react-icons/io5";
 import styles from "./style.module.scss";
 
 export type GameControllerProps = Record<
-  "disabledPlay" | "disabledReload" | "disabledRevert" | "disabledStop",
+  | "disabledPlay"
+  | "disabledReload"
+  | "disabledReturn"
+  | "disabledRevert"
+  | "disabledStop",
   ComponentPropsWithoutRef<"button">["disabled"]
 > &
   Record<
     | "handleClickOnReload"
     | "handleClickOnRevert"
+    | "handleClickOnReturn"
     | "handleClickOnStart"
     | "handleClickOnStop",
     ComponentPropsWithoutRef<"button">["onClick"]
@@ -20,10 +25,12 @@ export type GameControllerProps = Record<
 const GameController: FC<GameControllerProps> = ({
   disabledPlay,
   disabledReload,
+  disabledReturn,
   disabledRevert,
   disabledStop,
   displayButton,
   handleClickOnReload,
+  handleClickOnReturn,
   handleClickOnRevert,
   handleClickOnStart,
   handleClickOnStop,
@@ -65,6 +72,13 @@ const GameController: FC<GameControllerProps> = ({
         onClick={handleClickOnRevert}
       >
         <GrRevert color="#fff" size={24} />
+      </button>
+      <button
+        className={styles.button}
+        disabled={disabledReturn}
+        onClick={handleClickOnReturn}
+      >
+        <IoReturnDownBackOutline color="#fff" size={24} />
       </button>
       <button
         className={styles.button}
