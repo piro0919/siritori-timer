@@ -1,8 +1,14 @@
 import Button from "components/atoms/Button";
 import Slider, { SliderProps } from "components/molecules/Slider";
-import React, { ComponentPropsWithoutRef, FC, useMemo, useState } from "react";
+import React, {
+  ComponentPropsWithoutRef,
+  FC,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Controller, UseControllerOptions } from "react-hook-form";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import styles from "./style.module.scss";
 
 export type RuleProps = Pick<UseControllerOptions, "control"> & {
@@ -21,6 +27,10 @@ const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
     () => (time ? time.toString().split(".") : []),
     [time]
   );
+  const { push } = useHistory();
+  const handleClick = useCallback(() => {
+    push("/");
+  }, [push]);
 
   return (
     <section className={styles.wrapper}>
@@ -79,7 +89,8 @@ const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
               )}
             />
           </fieldset>
-          <footer className={styles.footer}>
+          <footer className={styles.buttonsWrapper}>
+            <Button onClick={handleClick}>戻る</Button>
             <Button type="submit">レッツパーティ！</Button>
           </footer>
         </div>
