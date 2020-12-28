@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo } from "react";
+import { FC, useMemo } from "react";
 import RcSlider, {
   createSliderWithTooltip,
   SliderProps as RcSliderProps,
@@ -8,16 +8,13 @@ import { ComponentWrapperProps } from "rc-slider/lib/createSliderWithTooltip";
 
 export type SliderProps = Pick<ControllerRenderProps, "onChange" | "value"> &
   Pick<RcSliderProps, "disabled" | "max" | "min" | "step"> &
-  Pick<ComponentWrapperProps, "tipFormatter"> & {
-    setValue: (value: any) => void;
-  };
+  Pick<ComponentWrapperProps, "tipFormatter">;
 
 const Slider: FC<SliderProps> = ({
   disabled,
   max,
   min,
   onChange,
-  setValue,
   step,
   tipFormatter,
   value,
@@ -26,10 +23,6 @@ const Slider: FC<SliderProps> = ({
     () => createSliderWithTooltip(RcSlider),
     []
   );
-
-  useEffect(() => {
-    setValue(value);
-  }, [setValue, value]);
 
   return (
     <SliderWithTooltip

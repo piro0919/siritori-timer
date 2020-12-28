@@ -16,7 +16,7 @@
   background: #fff;
   border: 2px solid #808080;
   border-radius: 4px;
-  padding: 16px;
+  padding: 8px 16px 24px;
 }
 
 .legend {
@@ -24,14 +24,22 @@
   border: 2px solid #808080;
   border-radius: 4px;
   padding: 8px;
-  text-align: center;
   width: 160px;
+}
+
+.legendInner {
+  text-align: center;
 }
 
 .tip {
   font-size: 1.6rem;
   padding: 0 8px;
   white-space: nowrap;
+}
+
+.fieldsetInner {
+  display: flex;
+  justify-content: center;
 }
 
 .buttonsWrapper {

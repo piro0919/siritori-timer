@@ -10,10 +10,17 @@ import TopSelect from "../TopSelect";
 
 export type TopProps = Pick<
   RuleProps,
-  "control" | "handicapsRef" | "handleSubmit"
+  "control" | "firstRef" | "handicapsRef" | "handleSubmit" | "player" | "time"
 >;
 
-const Top: FC<TopProps> = ({ control, handicapsRef, handleSubmit }) => {
+const Top: FC<TopProps> = ({
+  control,
+  firstRef,
+  handicapsRef,
+  handleSubmit,
+  player,
+  time,
+}) => {
   const { pathname } = useLocation();
   const animate = useMemo(() => ({ x: pathname === "/" ? "0" : "-50%" }), [
     pathname,
@@ -44,8 +51,11 @@ const Top: FC<TopProps> = ({ control, handicapsRef, handleSubmit }) => {
                 {pathname === "/expert" || pathname === "/party" ? (
                   <Rule
                     control={control}
+                    firstRef={firstRef}
                     handicapsRef={handicapsRef}
                     handleSubmit={handleSubmit}
+                    player={player}
+                    time={time}
                   />
                 ) : null}
               </div>

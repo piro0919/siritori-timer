@@ -7,34 +7,39 @@ import useLocalstorage from "@rooks/use-localstorage";
 import { stringify } from "query-string";
 
 type FieldValues = {
+  first: string;
   handicaps: string[];
-  players: number;
-  time: number;
+  players: string;
+  time: string;
 };
 
 const Pages: FC = () => {
   const { push } = useHistory();
   const { pathname } = useLocation();
   const [expertValue, setExpert] = useLocalstorage("expert", {
+    first: "0",
     handicaps: [],
-    player: 2,
-    time: 5,
+    player: "2",
+    time: "5",
   });
   const [partyValue, setParty] = useLocalstorage("party", {
+    first: "0",
     handicaps: [],
-    player: 2,
-    time: 1,
+    player: "2",
+    time: "1",
   });
   const {
     control,
     handleSubmit: handleSubmitReactHookForm,
     register,
     reset,
+    watch,
   } = useForm<FieldValues>({
     defaultValues: {
+      first: "0",
       handicaps: [],
-      players: 0,
-      time: 0,
+      players: "2",
+      time: "1",
     },
   });
   const handleValid = useCallback<SubmitHandler<FieldValues>>(
@@ -65,8 +70,11 @@ const Pages: FC = () => {
     <Layout>
       <Top
         control={control}
+        firstRef={register}
         handicapsRef={register}
         handleSubmit={handleSubmit}
+        player={watch("player")}
+        time={watch("time")}
       />
     </Layout>
   );

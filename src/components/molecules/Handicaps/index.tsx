@@ -1,39 +1,59 @@
-import { ComponentPropsWithRef, FC, forwardRef, useMemo } from "react";
-import uniqid from "uniqid";
+import { FC, useMemo } from "react";
 import styles from "./style.module.scss";
+import Select, { SelectProps } from "components/atoms/Select";
+import uniqid from "uniqid";
 
-export type HandicapsProps = Pick<ComponentPropsWithRef<"select">, "ref"> & {
+export type HandicapsProps = {
+  handicapsRef: SelectProps["ref"];
   player: number;
 };
 
-const Handicaps: FC<HandicapsProps> = forwardRef<
-  HTMLSelectElement,
-  Omit<HandicapsProps, "ref">
->(({ player }, ref) => {
+const Handicaps: FC<HandicapsProps> = ({ handicapsRef, player }) => {
   const items = useMemo(
     () =>
       [...Array(player)].map((_, index) => (
         <label key={uniqid()}>
           {`${index + 1}P：`}
-          <select
-            className={styles.select}
+          <Select
             name={`handicaps[${index}]`}
-            ref={ref}
-          >
-            <option value="0">なし</option>
-            <option value="0.5">30秒</option>
-            <option value="1">1分</option>
-            <option value="1.5">1分30秒</option>
-            <option value="2">2分</option>
-            <option value="2.5">2分30秒</option>
-            <option value="3">3分</option>
-          </select>
+            options={[
+              {
+                children: "なし",
+                value: "0",
+              },
+              {
+                children: "30秒",
+                value: "0.5",
+              },
+              {
+                children: "1分",
+                value: "1",
+              },
+              {
+                children: "1分30秒",
+                value: "1.5",
+              },
+              {
+                children: "2分",
+                value: "2",
+              },
+              {
+                children: "2分30秒",
+                value: "2.5",
+              },
+              {
+                children: "3分",
+                value: "3",
+              },
+            ]}
+            ref={handicapsRef}
+          />
         </label>
       )),
-    [player, ref]
+    [handicapsRef, player]
   );
 
   return <div className={styles.wrapper}>{items}</div>;
-});
+};
 
 export default Handicaps;

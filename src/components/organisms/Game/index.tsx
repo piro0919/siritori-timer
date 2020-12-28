@@ -23,16 +23,22 @@ import ReactHowler from "react-howler";
 
 const Game: FC = () => {
   const { search } = useLocation();
-  const { handicaps, minute, player, type } = useMemo(() => {
-    const { handicaps, player, time, type } = parse(search);
+  const { first, handicaps, minute, player, type } = useMemo(() => {
+    const { first, handicaps, player, time, type } = parse(search);
+    const nextFirst =
+      typeof first === "string" ? parseInt(first as string, 10) : -1;
+    const nextPlayer =
+      typeof player === "string" ? parseInt(player as string, 10) : 0;
 
     return {
       type,
+      first:
+        nextFirst >= 0 ? nextFirst : Math.floor(Math.random() * nextPlayer),
       handicaps: Array.isArray(handicaps)
         ? handicaps.map((handicap) => parseFloat(handicap))
         : [],
       minute: typeof time === "string" ? parseFloat(time) : 0,
-      player: typeof player === "string" ? parseInt(player as string, 10) : 0,
+      player: nextPlayer,
     };
   }, [search]);
   const [currentPlayer, setCurrentPlayer] = useState<number | undefined>();
@@ -147,9 +153,9 @@ const Game: FC = () => {
     }
 
     stop();
-    setCurrentPlayer(0);
+    setCurrentPlayer(first);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown]);
+  }, [countdown, first]);
 
   useEffect(() => {
     if (typeof revertPlayer === "undefined") {
