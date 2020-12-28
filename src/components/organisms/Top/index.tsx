@@ -8,9 +8,12 @@ import Rule, { RuleProps } from "../Rule";
 import Game from "../Game";
 import TopSelect from "../TopSelect";
 
-export type TopProps = Pick<RuleProps, "control" | "handleSubmit">;
+export type TopProps = Pick<
+  RuleProps,
+  "control" | "handicapsRef" | "handleSubmit"
+>;
 
-const Top: FC<TopProps> = ({ control, handleSubmit }) => {
+const Top: FC<TopProps> = ({ control, handicapsRef, handleSubmit }) => {
   const { pathname } = useLocation();
   const animate = useMemo(() => ({ x: pathname === "/" ? "0" : "-50%" }), [
     pathname,
@@ -39,7 +42,11 @@ const Top: FC<TopProps> = ({ control, handleSubmit }) => {
               </div>
               <div className={styles.item}>
                 {pathname === "/expert" || pathname === "/party" ? (
-                  <Rule control={control} handleSubmit={handleSubmit} />
+                  <Rule
+                    control={control}
+                    handicapsRef={handicapsRef}
+                    handleSubmit={handleSubmit}
+                  />
                 ) : null}
               </div>
             </motion.div>

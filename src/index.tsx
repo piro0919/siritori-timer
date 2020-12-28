@@ -7,13 +7,17 @@ import Containers from "containers";
 import "./styles/global.scss";
 import { BrowserRouter as Router } from "react-router-dom";
 import "rc-slider/assets/index.css";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "components/templates/ErrorFallback";
 
 const rootElement = document.getElementById("root");
 const element = (
   <StrictMode>
-    <Router>
-      <Containers />
-    </Router>
+    <ErrorBoundary fallbackRender={ErrorFallback}>
+      <Router>
+        <Containers />
+      </Router>
+    </ErrorBoundary>
   </StrictMode>
 );
 

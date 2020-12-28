@@ -1,0 +1,10 @@
+.wrapper {
+  display: grid;
+  gap: 8px;
+  grid-template: auto / repeat(auto-fit, 96px);
+  justify-content: center;
+}
+
+.select {
+  text-align: center;
+}

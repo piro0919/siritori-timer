@@ -15,6 +15,7 @@ import ReactHowler from "react-howler";
 
 export type TimerProps = {
   addLoser: (index: number) => void;
+  handicap: number;
   index: number;
   isStopCurrent: boolean;
   minute: number;
@@ -26,6 +27,7 @@ export type TimerProps = {
 
 const Timer: FC<TimerProps> = ({
   addLoser,
+  handicap,
   index,
   isStopCurrent,
   minute,
@@ -34,7 +36,7 @@ const Timer: FC<TimerProps> = ({
   setRevertTime,
   startNextPlayer,
 }) => {
-  const [timer, setTimer] = useState(minute * 60 * 1000);
+  const [timer, setTimer] = useState((minute + handicap) * 60 * 1000);
   const intervalDuration = useMemo(() => 100, []);
   const callback = useCallback(() => {
     setTimer((prevTimer) =>

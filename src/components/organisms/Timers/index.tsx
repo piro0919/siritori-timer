@@ -11,6 +11,7 @@ export type TimersProps = Pick<
   "addLoser" | "minute" | "setRevertTime" | "startNextPlayer"
 > & {
   currentPlayer?: number;
+  handicaps: TimerProps["handicap"][];
   players: Player[];
   previousPlayer?: number;
   revertPlayer?: number;
@@ -20,6 +21,7 @@ export type TimersProps = Pick<
 const Timers: FC<TimersProps> = ({
   addLoser,
   currentPlayer,
+  handicaps,
   minute,
   players,
   previousPlayer,
@@ -33,6 +35,7 @@ const Timers: FC<TimersProps> = ({
       players.map(({ key }, index) => (
         <Timer
           addLoser={addLoser}
+          handicap={handicaps[index] || 0}
           index={index}
           isStopCurrent={
             typeof currentPlayer === "undefined" && previousPlayer === index
@@ -48,6 +51,7 @@ const Timers: FC<TimersProps> = ({
     [
       addLoser,
       currentPlayer,
+      handicaps,
       minute,
       players,
       previousPlayer,

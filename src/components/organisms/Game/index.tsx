@@ -23,16 +23,18 @@ import ReactHowler from "react-howler";
 
 const Game: FC = () => {
   const { search } = useLocation();
-  const parsedQuery = useMemo(() => parse(search), [search]);
-  const { minute, player, type } = useMemo(() => {
-    const { player, time, type } = parsedQuery;
+  const { handicaps, minute, player, type } = useMemo(() => {
+    const { handicaps, player, time, type } = parse(search);
 
     return {
       type,
+      handicaps: Array.isArray(handicaps)
+        ? handicaps.map((handicap) => parseFloat(handicap))
+        : [],
       minute: typeof time === "string" ? parseFloat(time) : 0,
       player: typeof player === "string" ? parseInt(player as string, 10) : 0,
     };
-  }, [parsedQuery]);
+  }, [search]);
   const [currentPlayer, setCurrentPlayer] = useState<number | undefined>();
   const players = useMemo(
     () =>
@@ -223,6 +225,7 @@ const Game: FC = () => {
         <Timers
           addLoser={addLoser}
           currentPlayer={currentPlayer}
+          handicaps={handicaps}
           minute={minute}
           players={players}
           previousPlayer={

@@ -1,4 +1,5 @@
 import Button from "components/atoms/Button";
+import Handicaps, { HandicapsProps } from "components/molecules/Handicaps";
 import Slider, { SliderProps } from "components/molecules/Slider";
 import React, {
   ComponentPropsWithoutRef,
@@ -12,10 +13,11 @@ import { useHistory, useLocation } from "react-router-dom";
 import styles from "./style.module.scss";
 
 export type RuleProps = Pick<UseControllerOptions, "control"> & {
+  handicapsRef: HandicapsProps["ref"];
   handleSubmit: ComponentPropsWithoutRef<"form">["onSubmit"];
 };
 
-const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
+const Rule: FC<RuleProps> = ({ control, handicapsRef, handleSubmit }) => {
   const [player, setPlayer] = useState(0);
   const [time, setTime] = useState(0);
   const { pathname } = useLocation();
@@ -88,6 +90,10 @@ const Rule: FC<RuleProps> = ({ control, handleSubmit }) => {
                 />
               )}
             />
+          </fieldset>
+          <fieldset className={styles.fieldset}>
+            <legend className={styles.legend}>ハンデ</legend>
+            <Handicaps player={player} ref={handicapsRef} />
           </fieldset>
           <footer className={styles.buttonsWrapper}>
             <Button onClick={handleClick}>戻る</Button>
