@@ -18,8 +18,8 @@
       "type": "image/png"
     }
   ],
-  "name": "限界しりとりタイマー | 限界しりとりパーティー非公式アプリ",
-  "short_name": "限界しりとりタイマー",
+  "name": "限界しりとりタイマー",
+  "short_name": "限界タイマー",
   "start_url": ".",
   "theme_color": "#fff"
 }
