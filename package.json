@@ -17,7 +17,7 @@
     "@rooks/use-interval": "4.5.0",
     "@rooks/use-localstorage": "4.5.0",
     "@rooks/use-previous-different": "4.5.0",
-    "@testing-library/jest-dom": "5.11.6",
+    "@testing-library/jest-dom": "5.11.8",
     "@testing-library/react": "11.2.2",
     "@testing-library/user-event": "12.6.0",
     "@types/jest": "26.0.19",
