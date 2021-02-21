@@ -14,7 +14,7 @@
   "dependencies": {
     "@material-ui/core": "4.11.3",
     "@react-hook/window-size": "3.0.7",
-    "@rooks/use-interval": "4.9.1",
+    "@rooks/use-interval": "4.9.2",
     "@rooks/use-localstorage": "4.9.1",
     "@rooks/use-previous-different": "4.9.1",
     "@testing-library/jest-dom": "5.11.9",
