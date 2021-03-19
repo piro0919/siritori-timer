@@ -10,9 +10,9 @@ import ReactHowler from "react-howler";
 const TopSelect: FC = () => {
   const {
     appinstalled,
+    canInstallprompt,
     enabledPwa,
     handleClickOnInstallPrompt,
-    isPwa,
   } = usePwa();
   const { setVolume, volume } = useContext(VolumeContext);
   const [playing, setPlaying] = useState(false);
@@ -51,8 +51,11 @@ const TopSelect: FC = () => {
       <Button onClick={handleClickOnExpert}>エキスパートルール</Button>
       <div className={styles.buttonsWrapper}>
         <Button onClick={handleClickOnToggleSound}>{volumeText}</Button>
-        {!appinstalled && enabledPwa && !isPwa ? (
-          <Button disabled={!enabledPwa} onClick={handleClickOnInstallPrompt}>
+        {enabledPwa ? (
+          <Button
+            disabled={!canInstallprompt || appinstalled}
+            onClick={handleClickOnInstallPrompt}
+          >
             ホームへ追加
           </Button>
         ) : null}
