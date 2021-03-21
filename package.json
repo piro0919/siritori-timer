@@ -16,7 +16,7 @@
     "@react-hook/window-size": "3.0.7",
     "@rooks/use-interval": "4.10.0",
     "@rooks/use-localstorage": "4.10.0",
-    "@rooks/use-previous-different": "4.9.2",
+    "@rooks/use-previous-different": "4.10.0",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "11.2.5",
     "@testing-library/user-event": "12.8.3",
