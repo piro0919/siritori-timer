@@ -24,7 +24,7 @@
     "@types/node": "12.20.16",
     "@types/react": "16.14.11",
     "@types/react-dom": "16.9.14",
-    "@types/react-howler": "3.7.2",
+    "@types/react-howler": "3.7.3",
     "@types/react-no-ssr": "1.1.1",
     "@types/react-router-dom": "5.1.8",
     "@types/uniqid": "5.3.0",
