@@ -8,12 +8,8 @@ import VolumeContext from "contexts/VolumeContext";
 import ReactHowler from "react-howler";
 
 const TopSelect: FC = () => {
-  const {
-    appinstalled,
-    canInstallprompt,
-    enabledPwa,
-    handleClickOnInstallPrompt,
-  } = usePwa();
+  const { appinstalled, canInstallprompt, enabledPwa, showInstallPrompt } =
+    usePwa();
   const { setVolume, volume } = useContext(VolumeContext);
   const [playing, setPlaying] = useState(false);
   const handleClickOnToggleSound = useCallback(() => {
@@ -27,9 +23,10 @@ const TopSelect: FC = () => {
 
     setPlaying(true);
   }, [setVolume, volume]);
-  const volumeText = useMemo(() => `サウンド：${volume ? "オン" : "オフ"}`, [
-    volume,
-  ]);
+  const volumeText = useMemo(
+    () => `サウンド：${volume ? "オン" : "オフ"}`,
+    [volume]
+  );
   const { push } = useHistory();
   const handleClickOnParty = useCallback<
     NonNullable<ButtonProps["onClick"]>
@@ -54,7 +51,7 @@ const TopSelect: FC = () => {
         {enabledPwa ? (
           <Button
             disabled={!canInstallprompt || appinstalled}
-            onClick={handleClickOnInstallPrompt}
+            onClick={showInstallPrompt}
           >
             ホームへ追加
           </Button>
