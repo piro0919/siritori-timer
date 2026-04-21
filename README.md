@@ -2,8 +2,6 @@
 
 > Timer app for Japanese shiritori word-chain game.
 
-限界しりとりタイマー。
-
 [🔗 Live Site](https://siritori-timer.kk-web.link/)
 
 ## ✨ Features
@@ -26,3 +24,7 @@
 pnpm install
 pnpm dev
 ```
+
+## 📄 License
+
+MIT
