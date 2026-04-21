@@ -2,7 +2,7 @@
 
 > Timer app for Japanese shiritori word-chain game.
 
-[🔗 Live Site](https://siritori-timer.kk-web.link/)
+[🔗 Live Site](https://siritori-timer.kkweb.io/)
 
 ## ✨ Features
 
