@@ -29,6 +29,7 @@
   "devDependencies": {
     "@commitlint/cli": "17.2.0",
     "@commitlint/config-conventional": "17.2.0",
+    "@lhci/cli": "0.15.1",
     "@types/howler": "2.2.7",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
@@ -76,7 +77,8 @@
     "prepare": "npx husky install",
     "prettier": "prettier --write .",
     "start": "next start",
-    "type-check": "tsc --noemit"
+    "type-check": "tsc --noemit",
+    "lighthouse": "npm run build && lhci autorun"
   },
   "version": "0.1.0"
 }
