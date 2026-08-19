@@ -29,19 +29,11 @@ const nextConfig = withPWA(
       return [
         {
           destination: "/",
-          source: "/expert",
-        },
-        {
-          destination: "/",
           has: [
             { type: "query", key: "player" },
             { type: "query", key: "time" },
           ],
           source: "/game",
-        },
-        {
-          destination: "/",
-          source: "/party",
         },
       ];
     },

@@ -1,20 +1,60 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 
-const title = "限界しりとりタイマー | 限界しりとりパーティー非公式アプリ";
-const description = "限界しりとりパーティーの非公式タイマーアプリです。";
-const canonical = "https://siritori-timer.kkweb.io/";
-const ogpImage = `${canonical}ogp.png`;
+const SITE_NAME = "限界しりとりパーティー非公式アプリ";
+const SITE_URL = "https://siritori-timer.kkweb.io";
+const ogpImage = `${SITE_URL}/ogp.png`;
 
-// next-seo は 7 から Next 13.4 以上を要求する。ここで出しているのは
-// 題名・説明・canonical と、それに対応する OGP だけなので、next/head で足りる。
+type PageSeo = {
+  description: string;
+  /** 対戦中の画面のように、検索結果へ出す必要が無いページは false */
+  indexable: boolean;
+  title: string;
+};
+
+/**
+ * /expert と /party は next.config の rewrites で / に流している。
+ * 同じページだが遊び方が違うので、見出しと canonical は分ける。
+ */
+const pages: { [pathname: string]: PageSeo } = {
+  "/": {
+    description: "限界しりとりパーティーの非公式タイマーアプリです。",
+    indexable: true,
+    title: "限界しりとりタイマー",
+  },
+  "/expert": {
+    description:
+      "限界しりとりのエキスパートルール用タイマーです。持ち時間とハンデを決めて始められます。",
+    indexable: true,
+    title: "エキスパートルールのタイマー",
+  },
+  "/game": {
+    description: "限界しりとりパーティーの非公式タイマーアプリです。",
+    indexable: false,
+    title: "対戦中",
+  },
+  "/party": {
+    description:
+      "限界しりとりパーティーのパーティルール用タイマーです。人数と持ち時間を決めて始められます。",
+    indexable: true,
+    title: "パーティルールのタイマー",
+  },
+};
+
 function Seo(): JSX.Element {
+  const { asPath } = useRouter();
+  const pathname = asPath.split("?")[0].replace(/\/$/, "") || "/";
+  const page = pages[pathname] || pages["/"];
+  const canonical = `${SITE_URL}${pathname === "/" ? "/" : pathname}`;
+  const title = `${page.title} | ${SITE_NAME}`;
+
   return (
     <Head>
       <title>{title}</title>
-      <meta content={description} name="description" />
+      <meta content={page.description} name="description" />
       <link href={canonical} rel="canonical" />
       <meta content={title} property="og:title" />
-      <meta content={description} property="og:description" />
+      <meta content={page.description} property="og:description" />
       <meta content={canonical} property="og:url" />
       <meta content="website" property="og:type" />
       <meta content={ogpImage} property="og:image" />
@@ -25,6 +65,9 @@ function Seo(): JSX.Element {
       <meta content="summary_large_image" name="twitter:card" />
       <meta content={ogpImage} name="twitter:image" />
       <meta content={title} name="twitter:image:alt" />
+      {page.indexable ? null : (
+        <meta content="noindex, nofollow" name="robots" />
+      )}
     </Head>
   );
 }
