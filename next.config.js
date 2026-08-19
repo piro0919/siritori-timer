@@ -21,7 +21,9 @@ const nextConfig = withPWA(
     images: {
       unoptimized: true,
     },
-    optimizeFonts: false,
+    // Google Fonts の CSS をビルド時に取り込ませる。切ると 4 本の
+    // スタイルシートが描画をせき止める。
+    optimizeFonts: true,
     reactStrictMode: false,
     async rewrites() {
       return [
