@@ -19,7 +19,7 @@ function InnerSlides({
   onSubmit,
 }: InnerSlidesProps): JSX.Element {
   const { url } = useParseUrl();
-  const [ref, { width }] = useElementSize();
+  const [ref, { width = 0 }] = useElementSize();
   const index = useMemo(() => {
     switch (url) {
       case "/": {
@@ -34,8 +34,8 @@ function InnerSlides({
       }
     }
   }, [url]);
-  const [headerRef, { height: headerHeight }] = useElementSize();
-  const [footerRef, { height: footerHeight }] = useElementSize();
+  const [headerRef, { height: headerHeight = 0 }] = useElementSize();
+  const [footerRef, { height: footerHeight = 0 }] = useElementSize();
 
   return (
     <div className={styles.wrapper} ref={ref}>
