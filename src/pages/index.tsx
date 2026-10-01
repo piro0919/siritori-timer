@@ -8,6 +8,28 @@ import random from "random";
 import { useCallback, useEffect, useMemo } from "react";
 import { useBoolean, useLocalStorage } from "usehooks-ts";
 
+const MIN_PLAYER = 2;
+const MAX_PLAYER = 6;
+const DEFAULT_TIME = 60;
+/** 秒で受け取る値の上限。1 日あれば足りる。 */
+const MAX_SECONDS = 60 * 60 * 24;
+
+// URL は手で書き換えられる。数でなければ fallback、範囲の外なら端に寄せる。
+function toInt(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number
+): number {
+  const parsed = typeof value === "string" ? parseInt(value, 10) : NaN;
+
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return Math.min(Math.max(parsed, min), max);
+}
+
 function Pages(): JSX.Element {
   const {
     query: { first: queryFirst, handicaps, player: queryPlayer, time },
@@ -88,15 +110,22 @@ function Pages(): JSX.Element {
     },
     [router, setExpertDefaultValues, setPartyDefaultValues, url]
   );
+  const playerCount = useMemo(
+    () => toInt(queryPlayer, MIN_PLAYER, MIN_PLAYER, MAX_PLAYER),
+    [queryPlayer]
+  );
   const first = useMemo<OuterSlidesProps["first"]>(() => {
     if (typeof queryPlayer !== "string") {
       return undefined;
     }
 
-    return typeof queryFirst === "string"
-      ? parseInt(queryFirst, 10)
-      : random.int(0, parseInt(queryPlayer, 10) - 1);
-  }, [queryFirst, queryPlayer]);
+    const parsed = typeof queryFirst === "string" ? Number(queryFirst) : NaN;
+
+    // 人数の範囲に収まらない指定は、指定がなかったものとして決め直す。
+    return Number.isInteger(parsed) && parsed >= 0 && parsed < playerCount
+      ? parsed
+      : random.int(0, playerCount - 1);
+  }, [playerCount, queryFirst, queryPlayer]);
   const {
     setFalse: offIsStart,
     setTrue: onIsStart,
@@ -112,13 +141,14 @@ function Pages(): JSX.Element {
       return undefined;
     }
 
-    return Array(parseInt(queryPlayer))
+    const baseTime = toInt(time, DEFAULT_TIME, 1, MAX_SECONDS);
+
+    return Array(playerCount)
       .fill(undefined)
       .map((_, index) => ({
-        time:
-          (parseInt(time, 10) + parseInt(handicaps[index] || "0", 10)) * 1000,
+        time: (baseTime + toInt(handicaps[index], 0, 0, MAX_SECONDS)) * 1000,
       }));
-  }, [handicaps, queryPlayer, time, url]);
+  }, [handicaps, playerCount, queryPlayer, time, url]);
 
   useEffect(() => {
     if (url === "/game") {
