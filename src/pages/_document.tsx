@@ -31,8 +31,12 @@ class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap"
             rel="stylesheet"
           />
+          {/* text に空白を足しておく。いまの Google Fonts は切り出した書体を
+              unicode-range 付きでしか返さず、空白を含まないと行の高さが
+              cursive 側の寸法で決まって見出しが伸びる。Next 12 は CSS を
+              取り込む際に範囲指定の無い書体も得ていたので、これで揃う。 */}
           <link
-            href="https://fonts.googleapis.com/css2?family=Reggae+One&display=swap&text=限界しりとりタイマー"
+            href="https://fonts.googleapis.com/css2?family=Reggae+One&display=swap&text=%20限界しりとりタイマー"
             rel="stylesheet"
           />
           <link
