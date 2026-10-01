@@ -143,7 +143,7 @@ function Game({
     };
     const timer = setInterval(tick, TICK_MS);
 
-    return () => {
+    return (): void => {
       clearInterval(timer);
 
       deadlineRef.current = undefined;
