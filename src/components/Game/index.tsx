@@ -2,7 +2,7 @@ import deepcopy from "deepcopy";
 import useHowl from "hooks/useHowl";
 import { useRouter } from "next/router";
 import prettyMilliseconds from "pretty-ms";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   IoIosRefresh,
   IoMdArrowBack,
@@ -19,6 +19,18 @@ type Player = {
   time: number;
 };
 
+/** 表示を描き直す間隔。残り時間はこの間隔ではなく時計の差から出す。 */
+const TICK_MS = 100;
+
+// 持ち時間が残っている次の人。後ろにいなければ先頭から探す。
+function nextTurn(players: Player[], turn: number): number {
+  const playerIndex = players.findIndex(
+    ({ time }, index) => time && index > turn
+  );
+
+  return playerIndex > 0 ? playerIndex : players.findIndex(({ time }) => time);
+}
+
 export type GameProps = {
   first: number;
   isStart: boolean;
@@ -30,8 +42,17 @@ function Game({
   isStart,
   players: initialPlayers,
 }: GameProps): JSX.Element {
-  const [turn, setTurn] = useState(first);
+  const [turn, setTurn] = useState(() =>
+    Math.min(Math.max(first, 0), initialPlayers.length - 1)
+  );
   const [players, setPlayers] = useState(initialPlayers);
+  // 時計を進める側が最新の持ち時間を読むための控え。描画のたびに合わせる。
+  const playersRef = useRef(players);
+  // いまの手番が 0 になる時刻。performance.now() の値。止まっているあいだは使わない。
+  const deadlineRef = useRef<number>();
+
+  playersRef.current = players;
+
   const router = useRouter();
   const { setTrue: onIsEnd, value: isEnd } = useBoolean(false);
   const { toggle: toggleIsStop, value: isStop } = useBoolean(false);
@@ -47,73 +68,97 @@ function Game({
   const clickHowl = useHowl({
     src: "/sounds/click.mp3",
   });
-  const [playersHistories, setPlayersHistories] = useState<typeof players[]>(
+  const [playersHistories, setPlayersHistories] = useState<(typeof players)[]>(
     []
   );
-  const [turnHistories, setTurnHistories] = useState<typeof turn[]>([]);
+  const [turnHistories, setTurnHistories] = useState<(typeof turn)[]>([]);
+  // いまの手番の残りを時計から出し直し、状態に書き戻す。
+  const settle = useCallback((): Player[] => {
+    const deadline = deadlineRef.current;
+    const current = playersRef.current;
+
+    if (deadline === undefined) {
+      return current;
+    }
+
+    const remaining = Math.max(0, deadline - performance.now());
+    const next = current.map((player, index) =>
+      index === turn ? { ...player, time: remaining } : player
+    );
+
+    playersRef.current = next;
+
+    setPlayers(next);
+
+    return next;
+  }, [turn]);
 
   useEffect(() => {
-    if (!isStart || isStop) {
+    if (!isStart || isStop || isEnd) {
       return;
     }
 
-    const timer = setInterval(() => {
-      if (!players[turn].time) {
-        clearInterval(timer);
+    // 間隔ごとに決まった量を引くと、裏のタブで間引かれたぶんだけ遅れる。
+    // 締め切りの時刻を持ち、残りはいつも時計との差で出す。
+    deadlineRef.current = performance.now() + playersRef.current[turn].time;
 
-        if (players.filter(({ time }) => time).length > 1) {
-          nextHowl.play();
+    const tick = (): void => {
+      const previous = playersRef.current[turn].time;
+      const next = settle();
+      const remaining = next[turn].time;
 
-          const playerIndex = players.findIndex(
-            ({ time }, index) => time && index > turn
-          );
+      if (
+        remaining > 0 &&
+        Math.floor(previous / 1000) > Math.floor(remaining / 1000)
+      ) {
+        secondHowl.play();
+      }
 
-          setTurn(
-            playerIndex > 0
-              ? playerIndex
-              : players.findIndex(({ time }) => time)
-          );
-        } else {
-          onIsEnd();
+      if (remaining > 0) {
+        return;
+      }
 
-          endHowl.play();
+      clearInterval(timer);
 
-          const playerIndex = players.findIndex(({ time }) => time);
+      deadlineRef.current = undefined;
 
-          swal({
-            icon: "success",
-            title: `${playerIndex + 1}P Win!`,
-          });
-        }
+      if (next.filter(({ time }) => time).length > 1) {
+        nextHowl.play();
+
+        setTurn(nextTurn(next, turn));
 
         return;
       }
 
-      setPlayers((prevPlayers) => {
-        const players = [...prevPlayers];
+      onIsEnd();
 
-        players[turn].time = players[turn].time - 100;
+      endHowl.play();
 
-        return players;
+      const playerIndex = next.findIndex(({ time }) => time);
+
+      swal({
+        icon: "success",
+        title: `${playerIndex + 1}P Win!`,
       });
-    }, 100);
+    };
+    const timer = setInterval(tick, TICK_MS);
 
     return () => {
       clearInterval(timer);
+
+      deadlineRef.current = undefined;
     };
-  }, [endHowl, isStart, isStop, nextHowl, onIsEnd, players, turn]);
-
-  useEffect(() => {
-    if (!isStart || isStop) {
-      return;
-    }
-
-    if (!players[turn].time.toString().endsWith("000")) {
-      return;
-    }
-
-    secondHowl.play();
-  }, [isStart, isStop, players, secondHowl, turn]);
+  }, [
+    endHowl,
+    isEnd,
+    isStart,
+    isStop,
+    nextHowl,
+    onIsEnd,
+    secondHowl,
+    settle,
+    turn,
+  ]);
 
   useEffect(() => {
     if (isStop) {
@@ -139,15 +184,7 @@ function Game({
                 className={styles.button}
                 disabled={isEnd || !isStart || isStop || turn !== index}
                 onClick={(): void => {
-                  const playerIndex = players.findIndex(
-                    ({ time }, index) => time && index > turn
-                  );
-
-                  setTurn(
-                    playerIndex > 0
-                      ? playerIndex
-                      : players.findIndex(({ time }) => time)
-                  );
+                  setTurn(nextTurn(settle(), turn));
                 }}
               >
                 <span className={styles.player}>{`${index + 1}P`}</span>
@@ -161,7 +198,8 @@ function Game({
                   </span>
                 ) : null}
                 <span className={styles.time}>
-                  {prettyMilliseconds(time, {
+                  {/* 0.1 秒単位で切り上げる。0 になるまでは 0.1 が残って見える。 */}
+                  {prettyMilliseconds(Math.ceil(time / TICK_MS) * TICK_MS, {
                     colonNotation: true,
                     keepDecimalsOnWholeSeconds: true,
                   })}
@@ -175,6 +213,9 @@ function Game({
             className={styles.button2}
             disabled={isEnd || !isStart}
             onClick={(): void => {
+              // 止める瞬間の残りを確定させる。次の描き直しを待つと最大 0.1 秒ずれる。
+              settle();
+
               if (isStop) {
                 setPlayersHistories((prevPlayersHostories) => [
                   ...prevPlayersHostories,
