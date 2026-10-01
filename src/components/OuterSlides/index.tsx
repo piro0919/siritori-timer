@@ -22,7 +22,10 @@ function OuterSlides({
   players,
 }: OuterSlidesProps): JSX.Element {
   const { url } = useParseUrl();
-  const { height, width } = useWindowSize();
+  // サーバーには窓が無く、幅 0 として空で描く。初回からブラウザの幅を
+  // 読むと最初の描画がサーバーとずれて hydration が失敗するので、
+  // 測るのは描いた後にする。
+  const { height, width } = useWindowSize({ initializeWithValue: false });
   const index = useMemo(() => (url === "/game" ? 1 : 0), [url]);
 
   return width ? (
