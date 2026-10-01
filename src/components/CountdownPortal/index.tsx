@@ -1,5 +1,5 @@
 import useHowl from "hooks/useHowl";
-import { useEffect } from "react";
+import { type JSX, useEffect } from "react";
 import usePortal, { Args } from "react-cool-portal";
 import { useBoolean, useCountdown, useWindowSize } from "usehooks-ts";
 import styles from "./style.module.scss";

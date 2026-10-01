@@ -6,8 +6,8 @@ import { NextPage } from "next";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import "rc-slider/assets/index.css";
-import { ReactElement, ReactNode, useEffect } from "react";
-import "ress";
+import { type JSX, ReactElement, ReactNode, useEffect } from "react";
+import "ress/dist/ress.min.css";
 import "styles/globals.scss";
 import "styles/mq-settings.scss";
 

@@ -5,7 +5,7 @@ import useParseUrl from "hooks/useParseUrl";
 import { useRouter } from "next/router";
 import queryString from "query-string";
 import random from "random";
-import { useCallback, useEffect, useMemo } from "react";
+import { type JSX, useCallback, useEffect, useMemo } from "react";
 import { useBoolean, useLocalStorage } from "usehooks-ts";
 
 const MIN_PLAYER = 2;

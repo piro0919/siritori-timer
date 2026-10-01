@@ -1,5 +1,6 @@
 import useHowl from "hooks/useHowl";
 import router from "next/router";
+import type { JSX } from "react";
 import usePwa from "use-pwa";
 import { useLocalStorage } from "usehooks-ts";
 import styles from "./style.module.scss";

@@ -2,7 +2,7 @@ import deepcopy from "deepcopy";
 import useHowl from "hooks/useHowl";
 import { useRouter } from "next/router";
 import prettyMilliseconds from "pretty-ms";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type JSX, useCallback, useEffect, useRef, useState } from "react";
 import {
   IoIosRefresh,
   IoMdArrowBack,
@@ -49,7 +49,7 @@ function Game({
   // 時計を進める側が最新の持ち時間を読むための控え。描画のたびに合わせる。
   const playersRef = useRef(players);
   // いまの手番が 0 になる時刻。performance.now() の値。止まっているあいだは使わない。
-  const deadlineRef = useRef<number>();
+  const deadlineRef = useRef<number | undefined>(undefined);
 
   playersRef.current = players;
 

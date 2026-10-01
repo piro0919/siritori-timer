@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { type JSX, ReactNode } from "react";
 import styles from "./style.module.scss";
 
 export type LayoutProps = {

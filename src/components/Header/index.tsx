@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import styles from "./style.module.scss";
 
 function Header(): JSX.Element {

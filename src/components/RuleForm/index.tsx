@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import prettyMilliseconds from "pretty-ms";
 import Slider from "rc-slider";
+import type { JSX } from "react";
 import {
   useForm,
   Controller,

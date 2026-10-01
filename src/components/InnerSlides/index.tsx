@@ -3,9 +3,9 @@ import Header from "components/Header";
 import RuleForm, { RuleFormProps } from "components/RuleForm";
 import Top from "components/Top";
 import { motion } from "framer-motion";
+import useElementSize from "hooks/useElementSize";
 import useParseUrl from "hooks/useParseUrl";
-import { useMemo } from "react";
-import { useElementSize } from "usehooks-ts";
+import { type JSX, useMemo } from "react";
 import styles from "./style.module.scss";
 
 export type InnerSlidesProps = Partial<

@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
+import type { JSX } from "react";
 
 const SITE_NAME = "限界しりとりパーティー非公式アプリ";
 const SITE_URL = "https://siritori-timer.kkweb.io";

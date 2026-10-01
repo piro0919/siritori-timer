@@ -2,7 +2,7 @@ import Game, { GameProps } from "components/Game";
 import InnerSlides, { InnerSlidesProps } from "components/InnerSlides";
 import { motion } from "framer-motion";
 import useParseUrl from "hooks/useParseUrl";
-import { Fragment, useMemo } from "react";
+import { Fragment, type JSX, useMemo } from "react";
 import { useWindowSize } from "usehooks-ts";
 import styles from "./style.module.scss";
 
