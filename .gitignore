@@ -37,3 +37,10 @@ next-env.d.ts
 
 # Lighthouse CI reports
 .lighthouseci
+
+# generated at build time
+/public/sw.js
+/public/sw.js.map
+/public/workbox-*.js
+/public/robots.txt
+/public/sitemap*.xml
