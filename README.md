@@ -16,7 +16,7 @@
 - Next.js + React + TypeScript
 - Framer Motion
 - Howler (audio)
-- next-pwa
+- Serwist (service worker)
 
 ## 🚀 Development
 

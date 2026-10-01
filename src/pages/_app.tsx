@@ -33,6 +33,19 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
     clickHowl.play();
   }, [clickHowl, prevUrl, url]);
 
+  // next-pwa は登録の処理を自分で差し込んでいた。Serwist は差し込まないので
+  // ここで登録する。sw.js は本番のビルドでしか作られない。
+  useEffect(() => {
+    if (
+      process.env.NODE_ENV !== "production" ||
+      !("serviceWorker" in navigator)
+    ) {
+      return;
+    }
+
+    navigator.serviceWorker.register("/sw.js", { scope: "/" });
+  }, []);
+
   return (
     <>
       <Head>
