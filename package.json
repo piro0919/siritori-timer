@@ -30,6 +30,7 @@
     "@eslint/compat": "2.1.1",
     "@eslint/js": "10.0.1",
     "@lhci/cli": "0.15.1",
+    "@piro0919/eslint-config": "github:piro0919/eslint-config#v1.0.0",
     "@serwist/cli": "9.5.13",
     "@serwist/next": "9.5.13",
     "@types/howler": "2.2.13",

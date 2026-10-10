@@ -1,5 +1,6 @@
 import { fixupPluginRules } from "@eslint/compat";
 import js from "@eslint/js";
+import magicNumbers from "@piro0919/eslint-config";
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier/flat";
@@ -21,6 +22,8 @@ const eslintConfig = [
   ...nextCoreWebVitals,
   ...nextTypescript,
   prettier,
+  // 名前の無い数字を警告する（全リポジトリで共有する piro0919/eslint-config）
+  ...magicNumbers(),
   {
     plugins: {
       filenames: fixupPluginRules(filenames),
