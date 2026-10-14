@@ -67,6 +67,7 @@
   "scripts": {
     "build": "next build",
     "build:analyze": "ANALYZE=true next build --webpack",
+    "build:ogp": "node scripts/build-ogp.mjs",
     "dev": "next dev",
     "lint": "run-p lint:es lint:style",
     "lint-staged": "npx lint-staged",
