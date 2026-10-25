@@ -132,11 +132,18 @@ const eslintConfig = [
     },
     settings: {
       // eslint-plugin-react は版を自分で探しに行き、eslint 10 では落ちる。
-      react: { version: "18.3" },
+      react: { version: "19.3" },
     },
   },
   {
     files: ["src/pages/_app.tsx", "src/pages/_document.tsx"],
+    rules: {
+      "filenames/match-regex": "off",
+    },
+  },
+  {
+    // vitest は *.test.ts を拾う。名前の途中の . は camelCase に合わない。
+    files: ["test/**/*.test.ts"],
     rules: {
       "filenames/match-regex": "off",
     },

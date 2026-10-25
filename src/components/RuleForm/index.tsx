@@ -1,5 +1,5 @@
+import { formatSeconds, MAX_PLAYER, MIN_PLAYER } from "lib/game";
 import { useRouter } from "next/router";
-import prettyMilliseconds from "pretty-ms";
 import Slider from "rc-slider";
 import type { JSX } from "react";
 import {
@@ -9,6 +9,16 @@ import {
   useFieldArray,
 } from "react-hook-form";
 import styles from "./style.module.scss";
+
+const MIN_TIME = 30;
+const MAX_TIME = 60 * 10;
+const TIME_STEP = 30;
+const MAX_HANDICAP = 60 * 3;
+const HANDICAP_STEP = 30;
+const handicapOptions = Array.from(
+  { length: MAX_HANDICAP / HANDICAP_STEP + 1 },
+  (_, index) => index * HANDICAP_STEP
+);
 
 type Handicap = {
   time: string;
@@ -32,7 +42,7 @@ function RuleForm({
   disabledPlayer,
   onSubmit,
 }: RuleFormProps): JSX.Element {
-  const { control, handleSubmit, register, setValue, watch } =
+  const { control, getValues, handleSubmit, register, setValue, watch } =
     useForm<FieldValues>({
       defaultValues,
     });
@@ -41,15 +51,16 @@ function RuleForm({
     name: "handicaps",
   });
   const router = useRouter();
+  const player = watch("player");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className={styles.inner}>
         <div className={styles.fieldsetsWrapper}>
           <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>{`プレイ人数：${watch(
-              "player"
-            )}人`}</legend>
+            <legend
+              className={styles.legend}
+            >{`プレイ人数：${player}人`}</legend>
             <Controller
               control={control}
               name="player"
@@ -57,27 +68,37 @@ function RuleForm({
                 <Slider
                   {...field}
                   disabled={disabledPlayer}
-                  max={6}
-                  min={2}
-                  onAfterChange={(player): void => {
-                    if (typeof player !== "number") {
+                  max={MAX_PLAYER}
+                  min={MIN_PLAYER}
+                  onChangeComplete={(nextPlayer): void => {
+                    if (typeof nextPlayer !== "number") {
                       return;
                     }
 
-                    const difference = player - watch("handicaps").length;
+                    // ハンデの欄を人数に合わせて足し引きする。
+                    const { length } = getValues("handicaps");
 
-                    if (difference < 0) {
-                      setValue("first", "");
+                    if (nextPlayer > length) {
+                      append(
+                        Array.from({ length: nextPlayer - length }, () => ({
+                          time: "0",
+                        }))
+                      );
+
+                      return;
                     }
 
-                    const callback =
-                      difference > 0
-                        ? (): void => append({ time: "0" })
-                        : (): void => remove(watch("handicaps").length - 1);
+                    if (nextPlayer < length) {
+                      // 減った人が最初のプレイヤーに選ばれていたかもしれない。
+                      setValue("first", "");
 
-                    Array(Math.abs(difference))
-                      .fill(undefined)
-                      .forEach(callback);
+                      remove(
+                        Array.from(
+                          { length: length - nextPlayer },
+                          (_, index) => nextPlayer + index
+                        )
+                      );
+                    }
                   }}
                 />
               )}
@@ -87,20 +108,19 @@ function RuleForm({
             <legend className={styles.timeLegend}>
               持ち時間：
               <span className={styles.time}>
-                {prettyMilliseconds(watch("time") * 1000, {
-                  verbose: true,
-                })
-                  .replaceAll(" ", "")
-                  .replace("minutes", "分")
-                  .replace("minute", "分")
-                  .replace("seconds", "秒")}
+                {formatSeconds(watch("time"))}
               </span>
             </legend>
             <Controller
               control={control}
               name="time"
               render={({ field }): JSX.Element => (
-                <Slider {...field} max={60 * 10} min={30} step={30} />
+                <Slider
+                  {...field}
+                  max={MAX_TIME}
+                  min={MIN_TIME}
+                  step={TIME_STEP}
+                />
               )}
             />
           </fieldset>
@@ -114,13 +134,11 @@ function RuleForm({
                     {...register(`handicaps.${index}.time`)}
                     className={styles.select}
                   >
-                    <option value="0">なし</option>
-                    <option value="30">30秒</option>
-                    <option value="60">1分</option>
-                    <option value="90">1分30秒</option>
-                    <option value="120">2分</option>
-                    <option value="150">2分30秒</option>
-                    <option value="180">3分</option>
+                    {handicapOptions.map((seconds) => (
+                      <option key={seconds} value={seconds}>
+                        {seconds ? formatSeconds(seconds) : "なし"}
+                      </option>
+                    ))}
                   </select>
                 </label>
               ))}
@@ -133,13 +151,9 @@ function RuleForm({
                 <span>最初のプレイヤー：</span>
                 <select {...register("first")} className={styles.select}>
                   <option value="">ランダム</option>
-                  {Array(watch("player"))
-                    .fill(undefined)
-                    .map((_, index) => (
-                      <option key={index} value={index}>{`${
-                        index + 1
-                      }P`}</option>
-                    ))}
+                  {Array.from({ length: player }, (_, index) => (
+                    <option key={index} value={index}>{`${index + 1}P`}</option>
+                  ))}
                 </select>
               </label>
             </div>

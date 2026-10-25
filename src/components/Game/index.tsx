@@ -1,5 +1,5 @@
-import deepcopy from "deepcopy";
 import useHowl from "hooks/useHowl";
+import { nextTurn, type Player } from "lib/game";
 import { useRouter } from "next/router";
 import prettyMilliseconds from "pretty-ms";
 import { type JSX, useCallback, useEffect, useRef, useState } from "react";
@@ -14,22 +14,14 @@ import swal from "sweetalert";
 import { useBoolean } from "usehooks-ts";
 import styles from "./style.module.scss";
 
-type Player = {
-  // millisecond
-  time: number;
-};
-
 /** 表示を描き直す間隔。残り時間はこの間隔ではなく時計の差から出す。 */
 const TICK_MS = 100;
 
-// 持ち時間が残っている次の人。後ろにいなければ先頭から探す。
-function nextTurn(players: Player[], turn: number): number {
-  const playerIndex = players.findIndex(
-    ({ time }, index) => time && index > turn
-  );
-
-  return playerIndex > 0 ? playerIndex : players.findIndex(({ time }) => time);
-}
+/** 一手戻すときに戻る先。手番が始まった時点の持ち時間を控える。 */
+type History = {
+  players: Player[];
+  turn: number;
+};
 
 export type GameProps = {
   first: number;
@@ -46,6 +38,9 @@ function Game({
     Math.min(Math.max(first, 0), initialPlayers.length - 1)
   );
   const [players, setPlayers] = useState(initialPlayers);
+  const [histories, setHistories] = useState<History[]>(() => [
+    { turn, players: initialPlayers },
+  ]);
   // 時計を進める側が最新の持ち時間を読むための控え。描画のたびに合わせる。
   const playersRef = useRef(players);
   // いまの手番が 0 になる時刻。performance.now() の値。止まっているあいだは使わない。
@@ -68,10 +63,20 @@ function Game({
   const clickHowl = useHowl({
     src: "/sounds/click.mp3",
   });
-  const [playersHistories, setPlayersHistories] = useState<(typeof players)[]>(
-    []
+  const record = useCallback((history: History): void => {
+    setHistories((prevHistories) => [...prevHistories, history]);
+  }, []);
+  // 手番を渡し、渡した時点の持ち時間を履歴に積む。
+  const passTurn = useCallback(
+    (nextPlayers: Player[], currentTurn: number): void => {
+      const followingTurn = nextTurn(nextPlayers, currentTurn);
+
+      setTurn(followingTurn);
+
+      record({ players: nextPlayers, turn: followingTurn });
+    },
+    [record]
   );
-  const [turnHistories, setTurnHistories] = useState<(typeof turn)[]>([]);
   // いまの手番の残りを時計から出し直し、状態に書き戻す。
   const settle = useCallback((): Player[] => {
     const deadline = deadlineRef.current;
@@ -125,7 +130,7 @@ function Game({
       if (next.filter(({ time }) => time).length > 1) {
         nextHowl.play();
 
-        setTurn(nextTurn(next, turn));
+        passTurn(next, turn);
 
         return;
       }
@@ -155,24 +160,11 @@ function Game({
     isStop,
     nextHowl,
     onIsEnd,
+    passTurn,
     secondHowl,
     settle,
     turn,
   ]);
-
-  useEffect(() => {
-    if (isStop) {
-      return;
-    }
-
-    setPlayersHistories((prevPlayersHostories) => [
-      ...prevPlayersHostories,
-      deepcopy(players),
-    ]);
-
-    setTurnHistories((prevTurnHistories) => [...prevTurnHistories, turn]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStop, turn]);
 
   return (
     <div className={styles.wrapper}>
@@ -184,7 +176,7 @@ function Game({
                 className={styles.button}
                 disabled={isEnd || !isStart || isStop || turn !== index}
                 onClick={(): void => {
-                  setTurn(nextTurn(settle(), turn));
+                  passTurn(settle(), turn);
                 }}
               >
                 <span className={styles.player}>{`${index + 1}P`}</span>
@@ -216,16 +208,9 @@ function Game({
               // 止める瞬間の残りを確定させる。次の描き直しを待つと最大 0.1 秒ずれる。
               settle();
 
+              // 再開した時点も戻り先にする。止めているあいだに戻した先から続けられる。
               if (isStop) {
-                setPlayersHistories((prevPlayersHostories) => [
-                  ...prevPlayersHostories,
-                  deepcopy(players),
-                ]);
-
-                setTurnHistories((prevTurnHistories) => [
-                  ...prevTurnHistories,
-                  turn,
-                ]);
+                record({ players, turn });
               }
 
               toggleIsStop();
@@ -239,28 +224,15 @@ function Game({
           </button>
           <button
             className={styles.button2}
-            disabled={
-              !isStop || !turnHistories.length || !playersHistories.length
-            }
+            disabled={!isStop || !histories.length}
             onClick={(): void => {
+              const prevHistory = histories[histories.length - 1];
+
               clickHowl.play();
 
-              const prevTurn = turnHistories[turnHistories.length - 1];
-              const prevPlayers = playersHistories[playersHistories.length - 1];
-
-              setTurn(prevTurn);
-              setPlayers(prevPlayers);
-
-              setTurnHistories((prevTurnHistories) =>
-                prevTurnHistories.filter(
-                  (_, index) => prevTurnHistories.length - 1 !== index
-                )
-              );
-              setPlayersHistories((prevPlayersHistories) =>
-                prevPlayersHistories.filter(
-                  (_, index) => prevPlayersHistories.length - 1 !== index
-                )
-              );
+              setTurn(prevHistory.turn);
+              setPlayers(prevHistory.players);
+              setHistories(histories.slice(0, -1));
             }}
           >
             <IoMdUndo color="#fff" size={24} />

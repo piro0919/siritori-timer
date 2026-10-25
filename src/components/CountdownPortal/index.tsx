@@ -1,20 +1,28 @@
 import useHowl from "hooks/useHowl";
-import { type JSX, useEffect } from "react";
-import usePortal, { Args } from "react-cool-portal";
-import { useBoolean, useCountdown, useWindowSize } from "usehooks-ts";
+import { type JSX, useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import {
+  useBoolean,
+  useCountdown,
+  useIsClient,
+  useWindowSize,
+} from "usehooks-ts";
 import styles from "./style.module.scss";
 
-export type CountdownPortalProps = Pick<Args, "onHide">;
+const COUNT_START = 3;
 
-function CountdownPortal({ onHide }: CountdownPortalProps): JSX.Element {
-  const { Portal, hide } = usePortal({
-    onHide,
-    defaultShow: true,
-  });
+export type CountdownPortalProps = {
+  onHide?: () => void;
+};
+
+function CountdownPortal({ onHide }: CountdownPortalProps): JSX.Element | null {
+  // document.body はサーバーに無い。描いた後に出す。
+  const isClient = useIsClient();
+  const [isShow, setIsShow] = useState(true);
   const { setTrue: onIsStartCountdown, value: isStartCountdown } =
     useBoolean(false);
-  const [count, { startCountdown }] = useCountdown({
-    countStart: 3,
+  const [count, { startCountdown, stopCountdown }] = useCountdown({
+    countStart: COUNT_START,
     countStop: 0,
     intervalMs: 1000,
     isIncrement: false,
@@ -26,49 +34,72 @@ function CountdownPortal({ onHide }: CountdownPortalProps): JSX.Element {
     src: "/sounds/start.mp3",
   });
   const { height, width } = useWindowSize();
+  const hide = useCallback((): void => {
+    // Esc で数えている途中に閉じても、裏で数え続けて音を鳴らさないよう止める。
+    stopCountdown();
+
+    setIsShow(false);
+
+    onHide?.();
+  }, [onHide, stopCountdown]);
 
   useEffect(() => {
-    if (!isStartCountdown) {
+    if (!isShow || !isStartCountdown) {
       return;
     }
 
-    switch (count) {
-      case 0: {
-        startHowl.play();
+    if (count === 0) {
+      startHowl.play();
 
-        hide();
+      hide();
 
-        break;
-      }
-      case 1:
-      case 2:
-      case 3: {
-        countHowl.play();
-
-        break;
-      }
+      return;
     }
-  }, [count, countHowl, hide, isStartCountdown, startHowl]);
 
-  return (
-    <Portal>
-      <div
-        className={styles.wrapper}
-        onClick={(): void => {
-          if (isStartCountdown) {
-            return;
-          }
+    countHowl.play();
+  }, [count, countHowl, hide, isShow, isStartCountdown, startHowl]);
 
-          onIsStartCountdown();
-          startCountdown();
-        }}
-        style={{ height, width }}
-      >
-        <div className={styles.text}>
-          {isStartCountdown ? count : "Touch Start !"}
-        </div>
+  // 以前使っていた react-cool-portal は Esc でも閉じた。その動きを残す。
+  useEffect(() => {
+    if (!isShow) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        hide();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return (): void => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [hide, isShow]);
+
+  if (!isClient || !isShow) {
+    return null;
+  }
+
+  return createPortal(
+    <div
+      className={styles.wrapper}
+      onClick={(): void => {
+        if (isStartCountdown) {
+          return;
+        }
+
+        onIsStartCountdown();
+        startCountdown();
+      }}
+      style={{ height, width }}
+    >
+      <div className={styles.text}>
+        {isStartCountdown ? count : "Touch Start !"}
       </div>
-    </Portal>
+    </div>,
+    document.body
   );
 }
 

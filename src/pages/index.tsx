@@ -1,33 +1,24 @@
 import CountdownPortal from "components/CountdownPortal";
 import OuterSlides, { OuterSlidesProps } from "components/OuterSlides";
+import { FieldValues } from "components/RuleForm";
 import Seo from "components/Seo";
 import useParseUrl from "hooks/useParseUrl";
+import { createPlayers, MIN_PLAYER, pickFirst, toPlayerCount } from "lib/game";
 import { useRouter } from "next/router";
 import queryString from "query-string";
-import random from "random";
 import { type JSX, useCallback, useEffect, useMemo } from "react";
 import { useBoolean, useLocalStorage } from "usehooks-ts";
 
-const MIN_PLAYER = 2;
-const MAX_PLAYER = 6;
-const DEFAULT_TIME = 60;
-/** 秒で受け取る値の上限。1 日あれば足りる。 */
-const MAX_SECONDS = 60 * 60 * 24;
+const EXPERT_TIME = 60 * 5;
+const PARTY_TIME = 60;
 
-// URL は手で書き換えられる。数でなければ fallback、範囲の外なら端に寄せる。
-function toInt(
-  value: unknown,
-  fallback: number,
-  min: number,
-  max: number
-): number {
-  const parsed = typeof value === "string" ? parseInt(value, 10) : NaN;
-
-  if (!Number.isFinite(parsed)) {
-    return fallback;
-  }
-
-  return Math.min(Math.max(parsed, min), max);
+function createDefaultValues(time: number): FieldValues {
+  return {
+    time,
+    first: "",
+    handicaps: Array.from({ length: MIN_PLAYER }, () => ({ time: "0" })),
+    player: MIN_PLAYER,
+  };
 }
 
 function Pages(): JSX.Element {
@@ -35,70 +26,52 @@ function Pages(): JSX.Element {
     query: { first: queryFirst, handicaps, player: queryPlayer, time },
     url,
   } = useParseUrl();
-  const initialPlayer = useMemo(() => 2, []);
   const [expertDefaultValues, setExpertDefaultValues] = useLocalStorage(
     "expertDefaultValues",
-    {
-      first: "",
-      handicaps: Array(initialPlayer)
-        .fill(undefined)
-        .map(() => ({ time: "0" })),
-      player: initialPlayer,
-      time: 60 * 5,
-    }
+    () => createDefaultValues(EXPERT_TIME)
   );
   const [partyDefaultValues, setPartyDefaultValues] = useLocalStorage(
     "partyDefaultValues",
-    {
-      first: "",
-      handicaps: Array(initialPlayer)
-        .fill(undefined)
-        .map(() => ({ time: "0" })),
-      player: initialPlayer,
-      time: 60,
-    }
+    () => createDefaultValues(PARTY_TIME)
   );
-  const { defaultValues, disabledPlayer } = useMemo(() => {
+  const rule = useMemo(() => {
     switch (url) {
       case "/expert": {
         return {
           defaultValues: expertDefaultValues,
           disabledPlayer: true,
+          setDefaultValues: setExpertDefaultValues,
         };
       }
       case "/party": {
         return {
           defaultValues: partyDefaultValues,
           disabledPlayer: false,
+          setDefaultValues: setPartyDefaultValues,
         };
       }
       default: {
-        return {};
+        return undefined;
       }
     }
-  }, [expertDefaultValues, partyDefaultValues, url]);
+  }, [
+    expertDefaultValues,
+    partyDefaultValues,
+    setExpertDefaultValues,
+    setPartyDefaultValues,
+    url,
+  ]);
   const router = useRouter();
   const handleSubmit = useCallback<OuterSlidesProps["onSubmit"]>(
-    ({ handicaps, ...values }) => {
-      switch (url) {
-        case "/expert": {
-          setExpertDefaultValues({ handicaps, ...values });
-
-          break;
-        }
-        case "/party": {
-          setPartyDefaultValues({ handicaps, ...values });
-
-          break;
-        }
-      }
+    (values) => {
+      rule?.setDefaultValues(values);
 
       router.push(
         queryString.stringifyUrl(
           {
             query: {
               ...values,
-              handicaps: handicaps.map(({ time }) => time),
+              handicaps: values.handicaps.map(({ time }) => time),
             },
             url: "/game",
           },
@@ -108,47 +81,31 @@ function Pages(): JSX.Element {
         )
       );
     },
-    [router, setExpertDefaultValues, setPartyDefaultValues, url]
+    [router, rule]
   );
-  const playerCount = useMemo(
-    () => toInt(queryPlayer, MIN_PLAYER, MIN_PLAYER, MAX_PLAYER),
-    [queryPlayer]
+  const playerCount = toPlayerCount(queryPlayer);
+  const first = useMemo<OuterSlidesProps["first"]>(
+    () =>
+      typeof queryPlayer === "string"
+        ? pickFirst(queryFirst, playerCount)
+        : undefined,
+    [playerCount, queryFirst, queryPlayer]
   );
-  const first = useMemo<OuterSlidesProps["first"]>(() => {
-    if (typeof queryPlayer !== "string") {
-      return undefined;
-    }
-
-    const parsed = typeof queryFirst === "string" ? Number(queryFirst) : NaN;
-
-    // 人数の範囲に収まらない指定は、指定がなかったものとして決め直す。
-    return Number.isInteger(parsed) && parsed >= 0 && parsed < playerCount
-      ? parsed
-      : random.int(0, playerCount - 1);
-  }, [playerCount, queryFirst, queryPlayer]);
   const {
     setFalse: offIsStart,
     setTrue: onIsStart,
     value: isStart,
   } = useBoolean(false);
-  const players = useMemo<OuterSlidesProps["players"]>(() => {
-    if (
-      url !== "/game" ||
-      !Array.isArray(handicaps) ||
-      typeof queryPlayer !== "string" ||
-      typeof time !== "string"
-    ) {
-      return undefined;
-    }
-
-    const baseTime = toInt(time, DEFAULT_TIME, 1, MAX_SECONDS);
-
-    return Array(playerCount)
-      .fill(undefined)
-      .map((_, index) => ({
-        time: (baseTime + toInt(handicaps[index], 0, 0, MAX_SECONDS)) * 1000,
-      }));
-  }, [handicaps, playerCount, queryPlayer, time, url]);
+  const players = useMemo<OuterSlidesProps["players"]>(
+    () =>
+      url === "/game" &&
+      Array.isArray(handicaps) &&
+      typeof queryPlayer === "string" &&
+      typeof time === "string"
+        ? createPlayers({ handicaps, playerCount, time })
+        : undefined,
+    [handicaps, playerCount, queryPlayer, time, url]
+  );
 
   useEffect(() => {
     if (url === "/game") {
@@ -162,8 +119,8 @@ function Pages(): JSX.Element {
     <>
       <Seo />
       <OuterSlides
-        defaultValues={defaultValues}
-        disabledPlayer={disabledPlayer}
+        defaultValues={rule?.defaultValues}
+        disabledPlayer={rule?.disabledPlayer}
         first={first}
         isStart={isStart}
         onSubmit={handleSubmit}

@@ -2,10 +2,10 @@ import Footer from "components/Footer";
 import Header from "components/Header";
 import RuleForm, { RuleFormProps } from "components/RuleForm";
 import Top from "components/Top";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import useElementSize from "hooks/useElementSize";
 import useParseUrl from "hooks/useParseUrl";
-import { type JSX, useMemo } from "react";
+import type { JSX } from "react";
 import styles from "./style.module.scss";
 
 export type InnerSlidesProps = Partial<
@@ -20,20 +20,8 @@ function InnerSlides({
 }: InnerSlidesProps): JSX.Element {
   const { url } = useParseUrl();
   const [ref, { width = 0 }] = useElementSize();
-  const index = useMemo(() => {
-    switch (url) {
-      case "/": {
-        return 0;
-      }
-      case "/expert":
-      case "/party": {
-        return 1;
-      }
-      default: {
-        return 1;
-      }
-    }
-  }, [url]);
+  // トップだけが左。/expert と /party はルールの入力を見せる。
+  const index = url === "/" ? 0 : 1;
   const [headerRef, { height: headerHeight = 0 }] = useElementSize();
   const [footerRef, { height: footerHeight = 0 }] = useElementSize();
 
@@ -47,7 +35,7 @@ function InnerSlides({
         style={{ paddingBottom: (headerHeight - footerHeight) / 2 }}
       >
         {width ? (
-          <motion.div
+          <m.div
             animate={{ x: width * index * -1 }}
             className={styles.inner}
             initial={false}
@@ -65,7 +53,7 @@ function InnerSlides({
                 />
               ) : null}
             </div>
-          </motion.div>
+          </m.div>
         ) : null}
       </main>
       <div ref={footerRef}>

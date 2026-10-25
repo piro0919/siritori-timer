@@ -1,8 +1,8 @@
 import Game, { GameProps } from "components/Game";
 import InnerSlides, { InnerSlidesProps } from "components/InnerSlides";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import useParseUrl from "hooks/useParseUrl";
-import { Fragment, type JSX, useMemo } from "react";
+import type { JSX } from "react";
 import { useWindowSize } from "usehooks-ts";
 import styles from "./style.module.scss";
 
@@ -20,16 +20,20 @@ function OuterSlides({
   isStart,
   onSubmit,
   players,
-}: OuterSlidesProps): JSX.Element {
+}: OuterSlidesProps): JSX.Element | null {
   const { url } = useParseUrl();
   // サーバーには窓が無く、幅 0 として空で描く。初回からブラウザの幅を
   // 読むと最初の描画がサーバーとずれて hydration が失敗するので、
   // 測るのは描いた後にする。
   const { height, width } = useWindowSize({ initializeWithValue: false });
-  const index = useMemo(() => (url === "/game" ? 1 : 0), [url]);
+  const index = url === "/game" ? 1 : 0;
 
-  return width ? (
-    <motion.div
+  if (!width) {
+    return null;
+  }
+
+  return (
+    <m.div
       animate={{ x: width * index * -1 }}
       className={styles.wrapper}
       initial={false}
@@ -47,9 +51,7 @@ function OuterSlides({
       {typeof first === "number" && players ? (
         <Game first={first} isStart={isStart} players={players} />
       ) : null}
-    </motion.div>
-  ) : (
-    <Fragment />
+    </m.div>
   );
 }
 
