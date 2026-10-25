@@ -1,5 +1,4 @@
 @use "styles/breakpoints" as *;
-
 @use "sass-mq" with (
   $breakpoints: $breakpoints,
   $show-breakpoints: (

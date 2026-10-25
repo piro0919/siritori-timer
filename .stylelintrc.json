@@ -4,11 +4,11 @@
     "stylelint-config-standard",
     "stylelint-config-css-modules",
     "stylelint-config-recommended-scss",
-    "stylelint-config-sass-guidelines",
-    "stylelint-config-prettier"
+    "stylelint-config-sass-guidelines"
   ],
   "plugins": ["stylelint-order", "stylelint-scss"],
   "rules": {
+    "@stylistic/string-quotes": null,
     "at-rule-no-unknown": null,
     "color-named": [
       "never",

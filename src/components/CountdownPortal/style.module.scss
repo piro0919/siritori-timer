@@ -13,9 +13,11 @@
 
 .text {
   font-family: "Kaushan Script", cursive;
+
   @include mq.mq($until: tablet) {
     font-size: 56px;
   }
+
   @include mq.mq($from: tablet) {
     font-size: 108px;
   }

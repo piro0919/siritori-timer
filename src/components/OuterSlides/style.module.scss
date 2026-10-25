@@ -8,9 +8,11 @@
   display: flex;
   justify-content: center;
   width: 100%;
+
   @include mq.mq($until: tablet) {
     padding: 0 12px;
   }
+
   @include mq.mq($from: tablet) {
     padding: 0 24px;
   }

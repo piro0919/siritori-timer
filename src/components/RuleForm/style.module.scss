@@ -7,9 +7,11 @@
 .fieldsetsWrapper {
   display: grid;
   margin: 24px 0 0;
+
   @include mq.mq($until: tablet) {
     gap: 36px;
   }
+
   @include mq.mq($from: tablet) {
     gap: 48px;
   }

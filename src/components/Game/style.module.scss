@@ -18,9 +18,11 @@
 .list {
   display: grid;
   gap: 12px;
+
   @include mq.mq($until: tablet) {
     grid-template: auto / repeat(1, 1fr);
   }
+
   @include mq.mq($from: tablet) {
     grid-template: auto / repeat(2, 1fr);
   }

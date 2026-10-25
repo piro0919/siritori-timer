@@ -2,9 +2,11 @@
 
 .wrapper {
   display: grid;
+
   @include mq.mq($until: tablet) {
     gap: 24px;
   }
+
   @include mq.mq($from: tablet) {
     gap: 36px;
   }
