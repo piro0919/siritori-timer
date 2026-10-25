@@ -12,8 +12,6 @@
 .button {
   @include ui.button;
 
-  // インストールと横に並ぶと、320px の幅では1行に収まらない。
-  white-space: normal;
   width: 100%;
 
   @include mq.mq($from: tablet) {
