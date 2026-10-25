@@ -86,7 +86,7 @@
     "eslint-plugin-react": {
       "eslint": "$eslint"
     },
-    "zod": "4.6.6"
+    "zod": "4.6.7"
   },
   "engines": {
     "node": ">=20.20.2"
