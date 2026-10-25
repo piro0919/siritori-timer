@@ -13,8 +13,14 @@
   height: 100%;
 }
 
-.item {
+.item,
+.formItem {
   align-content: center;
   display: grid;
   height: 100%;
+}
+
+// 人数を変えるとハンデの欄が増減する。真ん中寄せだと上端が動き、つまみが指から逃げる。
+.formItem {
+  align-content: start;
 }

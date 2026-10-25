@@ -1,4 +1,19 @@
+// 色は OG 画像（scripts/build-ogp.mjs）と同じ。元のボードゲームの箱に寄せている。
+:root {
+  --ink: #1a1a1a;
+  --ink-muted: rgb(26 26 26 / 60%);
+  --line: rgb(26 26 26 / 15%);
+  --red: #e8382f;
+  --surface: #fff;
+  --surface-muted: rgb(255 255 255 / 60%);
+  --yellow: #f7e34b;
+  --radius: 14px;
+  --border: 3px solid var(--ink);
+}
+
 body {
+  background: var(--yellow);
+  color: var(--ink);
   font-family: "M PLUS Rounded 1c", sans-serif;
   font-size: 18px;
   overflow: hidden auto;
@@ -6,6 +21,11 @@ body {
 
 * {
   outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 3px;
 }
 
 a {
@@ -19,4 +39,44 @@ img {
 
 ul {
   list-style: none;
+}
+
+// 勝ちを知らせる sweetalert の窓も、箱と同じ形にそろえる。
+body .swal-overlay {
+  background: rgb(26 26 26 / 45%);
+}
+
+body .swal-modal {
+  border: var(--border);
+  border-radius: 20px;
+}
+
+body .swal-title {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+body .swal-button {
+  background: var(--ink);
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 800;
+  padding: 12px 28px;
+}
+
+body .swal-button:not([disabled]):hover,
+body .swal-button.swal-button:active {
+  background: #000;
+}
+
+body .swal-button:focus {
+  box-shadow: none;
+}
+
+body .swal-icon--success__line {
+  background-color: var(--ink);
+}
+
+body .swal-icon--success__ring {
+  border-color: var(--line);
 }

@@ -44,7 +44,7 @@ function InnerSlides({
             <div className={styles.item}>
               <Top />
             </div>
-            <div className={styles.item}>
+            <div className={styles.formItem}>
               {defaultValues && typeof disabledPlayer === "boolean" ? (
                 <RuleForm
                   defaultValues={defaultValues}

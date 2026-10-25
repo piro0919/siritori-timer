@@ -12,7 +12,7 @@ function MyDocument(): JSX.Element {
           rel="preconnect"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap"
+          href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;800&display=swap"
           rel="stylesheet"
         />
         {/* text に空白を足しておく。いまの Google Fonts は切り出した書体を
@@ -21,14 +21,6 @@ function MyDocument(): JSX.Element {
             取り込む際に範囲指定の無い書体も得ていたので、これで揃う。 */}
         <link
           href="https://fonts.googleapis.com/css2?family=Reggae+One&display=swap&text=%20限界しりとりタイマー"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap&text=0123456789:."
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap&text=Touch Start!123"
           rel="stylesheet"
         />
       </Head>

@@ -183,9 +183,9 @@ function Game({
                 {!isEnd && isStart && turn === index ? (
                   <span className={styles.status}>
                     {isStop ? (
-                      <IoMdSquare color="#f00" size={24} />
+                      <IoMdSquare color="var(--red)" size={24} />
                     ) : (
-                      <IoMdPlay color="#f00" size={24} />
+                      <IoMdPlay color="var(--red)" size={24} />
                     )}
                   </span>
                 ) : null}

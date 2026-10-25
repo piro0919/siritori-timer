@@ -1,43 +1,34 @@
-@use "styles/mq" as mq;
+@use "styles/ui";
 
 .inner {
+  margin: 0 auto;
+  max-width: 560px;
   width: 100%;
 }
 
 .fieldsetsWrapper {
   display: grid;
-  margin: 24px 0 0;
-
-  @include mq.mq($until: tablet) {
-    gap: 36px;
-  }
-
-  @include mq.mq($from: tablet) {
-    gap: 48px;
-  }
+  gap: 12px;
 }
 
 .fieldset {
-  background: #fff;
-  border: 2px solid #808080;
-  border-radius: 4px;
-  padding: 24px;
-  position: relative;
+  @include ui.tile;
+
+  padding: 16px 20px 20px;
 }
 
+// legend は枠の線の上に乗るのが既定。float にすると箱の中の見出しとして並ぶ。
 .legend,
 .timeLegend {
-  background: #fff;
-  border: 2px solid #808080;
-  border-radius: 4px;
-  font-size: 16px;
-  left: 0;
-  margin: -24px 0 0 24px;
-  padding: 4px 24px;
-  position: absolute;
-  text-align: center;
-  top: 0;
-  width: 200px;
+  float: left;
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  width: 100%;
+
+  + * {
+    clear: both;
+  }
 }
 
 .timeLegend {
@@ -53,31 +44,76 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px 24px;
-  justify-content: center;
 }
 
 .select {
-  appearance: auto;
-  border-bottom: 1px solid #808080;
+  appearance: none;
+  background: var(--surface)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1.5 1.5 6 6l4.5-4.5' fill='none' stroke='%231a1a1a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 12px center;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 6px 36px 6px 12px;
+}
+
+// rc-slider の既定は水色。箱と同じ黒と白にする。
+.fieldset :global(.rc-slider) {
+  height: 26px;
+  padding: 9px 0;
+}
+
+.fieldset :global(.rc-slider-rail) {
+  background: var(--line);
+  height: 8px;
+}
+
+.fieldset :global(.rc-slider-track) {
+  background: var(--ink);
+  height: 8px;
+}
+
+.fieldset :global(.rc-slider-handle) {
+  background: var(--surface);
+  border: var(--border);
+  box-shadow: none;
+  height: 26px;
+  margin-top: -9px;
+  opacity: 1;
+  width: 26px;
+}
+
+// 既定のドラッグ中の水色は class を3つ重ねて当てている。同じ強さで後から上書きする。
+.fieldset :global(.rc-slider-handle-dragging.rc-slider-handle-dragging) {
+  border-color: var(--ink);
+  box-shadow: none;
+}
+
+.fieldset :global(.rc-slider-handle:focus-visible) {
+  box-shadow: 0 0 0 3px var(--red);
+}
+
+.fieldset :global(.rc-slider-disabled) {
+  background: none;
+  opacity: 0.3;
+}
+
+.fieldset :global(.rc-slider-disabled .rc-slider-handle) {
+  border-color: var(--ink);
 }
 
 .buttonsWrapper {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  padding: 24px 0 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 2fr;
+  padding: 16px 0 0;
 }
 
-.button,
-.submitButton {
-  background: #000;
-  border-radius: 4px;
-  color: #fff;
-  font-weight: 900;
-  min-width: 120px;
-  padding: 12px 24px;
+.button {
+  @include ui.button;
 }
 
 .submitButton {
-  background: #f00;
+  @include ui.button(var(--red));
 }

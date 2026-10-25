@@ -1,6 +1,7 @@
 @use "styles/mq" as mq;
 
 .footer {
+  color: var(--ink-muted);
   text-align: center;
 
   @include mq.mq($until: tablet) {

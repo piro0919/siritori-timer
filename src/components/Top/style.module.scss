@@ -1,27 +1,27 @@
 @use "styles/mq" as mq;
+@use "styles/ui";
 
 .wrapper {
   display: grid;
-
-  @include mq.mq($until: tablet) {
-    gap: 24px;
-  }
-
-  @include mq.mq($from: tablet) {
-    gap: 36px;
-  }
+  gap: 16px;
+  justify-self: center;
+  max-width: 440px;
+  width: 100%;
 }
 
 .button {
-  background: #000;
-  border-radius: 4px;
-  color: #fff;
-  font-weight: 900;
-  padding: 12px;
+  @include ui.button;
+
+  // インストールと横に並ぶと、320px の幅では1行に収まらない。
+  white-space: normal;
   width: 100%;
+
+  @include mq.mq($from: tablet) {
+    min-height: 64px;
+  }
 }
 
 .buttonsWrapper {
   display: flex;
-  gap: 24px;
+  gap: 16px;
 }

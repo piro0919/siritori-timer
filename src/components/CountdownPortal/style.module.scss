@@ -2,7 +2,8 @@
 
 .wrapper {
   align-items: center;
-  background: rgba(#fff, 0.5);
+  backdrop-filter: blur(6px);
+  background: rgb(247 227 75 / 75%);
   cursor: pointer;
   display: flex;
   inset: 0;
@@ -12,7 +13,8 @@
 }
 
 .text {
-  font-family: "Kaushan Script", cursive;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
 
   @include mq.mq($until: tablet) {
     font-size: 56px;

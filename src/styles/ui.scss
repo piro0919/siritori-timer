@@ -1,0 +1,32 @@
+// 画面をまたいで同じ形にする部品。OG 画像の数字のタイル（黒の太枠に角丸）が元。
+// ボタンと箱はここから取り、画面ごとに寸法や色を書き足さない。
+
+@mixin tile {
+  background: var(--surface);
+  border: var(--border);
+  border-radius: var(--radius);
+}
+
+@mixin button($color: var(--ink)) {
+  align-items: center;
+  background: $color;
+  border: 3px solid $color;
+  border-radius: var(--radius);
+  color: #fff;
+  display: flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 16px;
+  transition: transform 100ms ease-out, opacity 150ms ease-out;
+  white-space: nowrap;
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.3;
+  }
+}

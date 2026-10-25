@@ -1,4 +1,5 @@
 @use "styles/mq" as mq;
+@use "styles/ui";
 
 .wrapper {
   display: grid;
@@ -32,40 +33,51 @@
   display: grid;
 }
 
+// いまの手番だけ白い箱にする。ほかの人も時間は読める濃さで出す。
 .button {
-  border: 8px solid #fff;
-  border-radius: 4px;
+  @include ui.tile;
+
   padding: 0 24px;
   position: relative;
-  transition: 100ms;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+
+  &:active:not(:disabled) {
+    background: #fffbe0;
+  }
 }
 
 .button:disabled {
-  opacity: 0.5;
+  background: var(--surface-muted);
+  border-color: transparent;
+  color: var(--ink-muted);
+  cursor: default;
 }
 
 .player {
+  font-weight: 800;
   left: 0;
-  padding: 12px;
+  padding: 12px 16px;
   position: absolute;
   top: 0;
 }
 
 .status {
-  padding: 12px;
+  display: flex;
+  padding: 12px 16px;
   position: absolute;
   right: 0;
   top: 0;
 }
 
 .time {
-  font-family: "Open Sans", sans-serif;
   font-size: 64px;
-  transition: inherit;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  transition: font-size 150ms ease-out;
 }
 
 .button:disabled .time {
-  font-size: 24px;
+  font-size: 28px;
 }
 
 .buttonsWrapper {
@@ -75,13 +87,5 @@
 }
 
 .button2 {
-  border: 4px solid #fff;
-  border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  padding: 8px 24px;
-}
-
-.button2:disabled {
-  opacity: 0.5;
+  @include ui.button;
 }

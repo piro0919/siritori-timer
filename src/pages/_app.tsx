@@ -9,7 +9,6 @@ import "rc-slider/assets/index.css";
 import { type JSX, ReactElement, ReactNode, useEffect, useRef } from "react";
 import "ress/dist/ress.min.css";
 import "styles/globals.scss";
-import "styles/mq-settings.scss";
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
